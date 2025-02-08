@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GGG",
+    "G G",
+    "GAG"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:lapis_lazuli"
+    },
+    "G": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "result": {
+    "item": "stompandclimb:rusted_collar",
+    "count": 1
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "RIC",
+    "I I",
+    "CIC"
+  ],
+  "key": {
+    "R": {
+      "item": "minecraft:heart_of_the_sea"
+    },
+    "I": {
+      "item": "minecraft:granite"
+    },
+    "C": {
+      "item": "minecraft:quartz"
+    }
+  },
+  "result": {
+    "item": "stompandclimb:sea_ring",
+    "count": 1
+  }
+}

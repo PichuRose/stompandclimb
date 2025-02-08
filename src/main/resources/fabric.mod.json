@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "stompandclimb",
+  "version": "${version}",
+  "name": "Stomp and Climb",
+  "description": "",
+  "authors": [],
+  "contact": {
+    "repo": "https://github.com/Brodie/Stomp and Climb"
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/stompandclimb/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "pichurose.stompandclimb.client.StompAndClimbClient"
+    ],
+    "main": [
+      "pichurose.stompandclimb.StompAndClimb"
+    ]
+  },
+  "mixins": [
+    "stompandclimb.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}",
+    "pehkui": "*",
+    "fabric-key-binding-api-v1": "*"
+  }
+}

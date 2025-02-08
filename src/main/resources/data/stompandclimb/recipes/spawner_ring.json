@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AGG",
+    "G G",
+    "GGG"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:popped_chorus_fruit"
+    },
+    "G": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "result": {
+    "item": "stompandclimb:spawner_ring",
+    "count": 1
+  }
+}

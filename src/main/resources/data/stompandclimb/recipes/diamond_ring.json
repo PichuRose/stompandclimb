@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AGG",
+    "G G",
+    "GGG"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:diamond"
+    },
+    "G": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "stompandclimb:diamond_ring",
+    "count": 1
+  }
+}

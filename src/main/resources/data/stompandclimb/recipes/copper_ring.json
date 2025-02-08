@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AGG",
+    "GWG",
+    "GGG"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:lapis_lazuli"
+    },
+    "G": {
+      "item": "minecraft:copper_ingot"
+    },
+    "W": {
+      "item": "minecraft:honeycomb"
+    }
+  },
+  "result": {
+    "item": "stompandclimb:copper_ring",
+    "count": 1
+  }
+}

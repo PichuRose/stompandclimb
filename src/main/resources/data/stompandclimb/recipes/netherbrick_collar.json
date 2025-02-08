@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GGG",
+    "G G",
+    "GAG"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:sculk"
+    },
+    "G": {
+      "item": "minecraft:nether_brick"
+    }
+  },
+  "result": {
+    "item": "stompandclimb:netherbrick_collar",
+    "count": 1
+  }
+}
+

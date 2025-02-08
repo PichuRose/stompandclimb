@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AGG",
+    "G G",
+    "GGG"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:phantom_membrane"
+    },
+    "G": {
+      "item": "minecraft:netherite_ingot"
+    }
+  },
+  "result": {
+    "item": "stompandclimb:netherite_ring",
+    "count": 1
+  }
+}
+

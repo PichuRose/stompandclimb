@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AGG",
+    "G G",
+    "GGG"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:sculk"
+    },
+    "G": {
+      "item": "minecraft:nether_brick"
+    }
+  },
+  "result": {
+    "item": "stompandclimb:netherbrick_ring",
+    "count": 1
+  }
+}
+

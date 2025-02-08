@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GRG",
+    "GAG",
+    "   "
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:nether_star"
+    },
+    "G": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "R": {
+      "item":"minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "stompandclimb:hover_boots",
+    "count": 1
+  }
+}

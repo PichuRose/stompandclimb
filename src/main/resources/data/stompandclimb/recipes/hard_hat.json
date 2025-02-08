@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GGG",
+    "GAG",
+    "   "
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:honeycomb"
+    },
+    "G": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "result": {
+    "item": "stompandclimb:hard_hat",
+    "count": 1
+  }
+}

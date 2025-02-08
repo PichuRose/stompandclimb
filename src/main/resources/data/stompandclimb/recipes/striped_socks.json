@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "G  ",
+    "S  ",
+    "GS "
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:pink_wool"
+    },
+    "S": {
+      "item": "minecraft:purple_wool"
+    }
+  },
+  "result": {
+    "item": "stompandclimb:striped_socks",
+    "count": 1
+  }
+}

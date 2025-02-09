@@ -47,17 +47,38 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
 
 
     @Unique
-    public double forwardBackOffset = 0;
+    public double forwardBackOffset = 0.5;
     @Unique
-    public double upDownOffset = 0;
+    public double upDownOffset = -1;
     @Unique
-    public double leftRightOffset = 0;
+    public double leftRightOffset = -0.5;
+
+    @Unique
+    boolean holdOutHand = true;
 
     @Override
     public void stompandclimb_updateCustomCarryCache(double x, double y, double z) {
         forwardBackOffset = x;
         upDownOffset = y;
         leftRightOffset = z;
+    }
+
+    @Override
+    public void stompandclimb_updateCustomCarryCache(String string) {
+        switch(string){
+            case "hand":
+                holdOutHand = true;
+                forwardBackOffset = 0.5;
+                upDownOffset = -1;
+                leftRightOffset = -0.5;
+                break;
+            case "head":
+                holdOutHand = false;
+                forwardBackOffset = 0;
+                upDownOffset = -0.25;
+                leftRightOffset = 0;
+                break;
+        }
     }
 
 
@@ -77,12 +98,14 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
             positionUpdater.accept(passenger, this.getX() + offsetX, d, this.getZ() + offsetZ);
             ci.cancel();
         }*/
-        if(((Object)this) instanceof Player) {
+        if(((Object)this) instanceof Player player) {
 
 
             //forwardbackoffset = -0.08 - .08
             //updownoffset = -0.45 - 0.05 = hit
             //leftrightoffset = -.08 - .08
+
+            //0.4 -1.45 -0.4
 
 //            if (forwardBackOffset > -0.08 && forwardBackOffset < 0.08) {
 //                forwardBackOffset = forwardBackOffset < 0 ? -0.08 : 0.08;
@@ -94,14 +117,20 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
 //                leftRightOffset = leftRightOffset < 0 ? -0.08 : 0.08;
 //            }
 
-            float scale = ResizingUtils.getActualSize((Entity)(Object) this);
+            float scale = ResizingUtils.getActualSize(player);
             float passengerHeight = passenger.getDimensions(Pose.STANDING).height;
 
-            float angle = ((LivingEntity)(Object)this).yBodyRotO;
+            float angle = player.yBodyRotO;
 
             double offsetX = Math.cos(Math.toRadians(angle + 90)) * (forwardBackOffset * scale) + Math.cos(Math.toRadians(angle)) * (leftRightOffset * scale);
-            double offsetY = this.getY() + this.dimensions.height + passenger.getMyRidingOffset() + passengerHeight + ((upDownOffset) * scale);
+            double offsetY = this.getY() + this.dimensions.height + passenger.getMyRidingOffset() + ((upDownOffset) * scale);
             double offsetZ = Math.sin(Math.toRadians(angle + 90)) * (forwardBackOffset * scale) + Math.sin(Math.toRadians(angle)) * (leftRightOffset * scale);
+
+
+            if (holdOutHand) {
+                player.swingTime = 0;
+                player.swing(InteractionHand.MAIN_HAND);
+            }
 
             positionUpdater.accept(passenger, this.getX() + offsetX, offsetY, this.getZ() + offsetZ);
 

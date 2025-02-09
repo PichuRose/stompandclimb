@@ -125,6 +125,7 @@ public class StompAndClimb implements ModInitializer {
                 assert target != null;
                 if (target.getVehicle() == null) {
                     target.startRiding(player, true);
+
                 }
             }
         } else if (hitResultType == 0) {

@@ -25,10 +25,10 @@ public class StompAndClimbClient implements ClientModInitializer {
     public void onInitializeClient() {
         //PehkuiSupport.setup();
         pickupPlacedown = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-                "key.stompandclimbforge.pickupplacedown", // The translation key of the KeyMapping's name
+                "key.stompandclimb.pickupplacedown", // The translation key of the KeyMapping's name
                 InputConstants.Type.KEYSYM, // The type of the KeyMapping, KEYSYM for keyboard, MOUSE for mouse.
                 GLFW.GLFW_KEY_END, // The keycode of the key
-                "key.categories.stompandclimbforge" // The translation key of the KeyMapping's category.
+                "key.categories.stompandclimb" // The translation key of the KeyMapping's category.
         ));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (pickupPlacedown.consumeClick()) {

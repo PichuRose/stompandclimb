@@ -1,16 +1,16 @@
 package pichurose.stompandclimb.mixins;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.World;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -25,6 +25,7 @@ import pichurose.stompandclimb.utils.ResizingUtils;
 
 
 import java.util.List;
+import java.util.logging.Level;
 
 @Mixin(Entity.class )
 public abstract class EntityMixin implements CustomCarryOffsetInterface {
@@ -45,28 +46,6 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
     private EntityDimensions dimensions;
 
 
-    @Shadow
-    public abstract double getMountedHeightOffset();
-
-    @Shadow
-    public abstract float getYaw();
-
-    @Shadow
-    public abstract boolean isOnGround();
-
-    @Shadow
-    public abstract World getWorld();
-
-    @Shadow
-    public abstract Box getBoundingBox();
-
-    @Shadow
-    public abstract float getStepHeight();
-
-    @Shadow public abstract void sendMessage(Text message);
-
-    @Shadow public abstract boolean collidesWith(Entity other);
-
     @Unique
     public double forwardBackOffset = 0;
     @Unique
@@ -82,8 +61,8 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
     }
 
 
-    @Inject(method = "updatePassengerPosition(Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/Entity$PositionUpdater;)V", at = @At("HEAD"), cancellable = true)
-    protected void injected(Entity passenger, Entity.PositionUpdater positionUpdater, CallbackInfo ci) {
+    @Inject(method = "positionRider(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity$MoveFunction;)V", at = @At("HEAD"), cancellable = true)
+    protected void injected(Entity passenger, Entity.MoveFunction positionUpdater, CallbackInfo ci) {
         if (!this.hasPassenger(passenger)) {
             return;
         }
@@ -98,7 +77,7 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
             positionUpdater.accept(passenger, this.getX() + offsetX, d, this.getZ() + offsetZ);
             ci.cancel();
         }*/
-        if(((Object)this) instanceof PlayerEntity) {
+        if(((Object)this) instanceof Player) {
 
 
             //forwardbackoffset = -0.08 - .08
@@ -116,12 +95,12 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
 //            }
 
             float scale = ResizingUtils.getActualSize((Entity)(Object) this);
-            float passengerHeight = passenger.getDimensions(EntityPose.STANDING).height;
+            float passengerHeight = passenger.getDimensions(Pose.STANDING).height;
 
-            float angle = ((LivingEntity)(Object)this).prevBodyYaw;
+            float angle = ((LivingEntity)(Object)this).yBodyRotO;
 
             double offsetX = Math.cos(Math.toRadians(angle + 90)) * (forwardBackOffset * scale) + Math.cos(Math.toRadians(angle)) * (leftRightOffset * scale);
-            double offsetY = this.getY() + this.dimensions.height + passenger.getHeightOffset() + passengerHeight + ((upDownOffset) * scale);
+            double offsetY = this.getY() + this.dimensions.height + passenger.getMyRidingOffset() + passengerHeight + ((upDownOffset) * scale);
             double offsetZ = Math.sin(Math.toRadians(angle + 90)) * (forwardBackOffset * scale) + Math.sin(Math.toRadians(angle)) * (leftRightOffset * scale);
 
             positionUpdater.accept(passenger, this.getX() + offsetX, offsetY, this.getZ() + offsetZ);
@@ -133,16 +112,9 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
         }
     }
 
-    /**
-     * @author Pichu Rose
-     * @reason Optimizing Block Collision
-     */
-    @Inject(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Ljava/util/List;)Lnet/minecraft/util/math/Vec3d;", at = @At("HEAD"), cancellable = true)
-    private static void adjustMovementForCollisions(Vec3d movement, Box entityBoundingBox, List<VoxelShape> collisions, CallbackInfoReturnable<Vec3d> cir) {
 
-    }
 
-    @ModifyArgs(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Ljava/util/List;)Lnet/minecraft/util/math/Vec3d;", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/shape/VoxelShapes;calculateMaxOffset(Lnet/minecraft/util/math/Direction$Axis;Lnet/minecraft/util/math/Box;Ljava/lang/Iterable;D)D"))
+    /*@ModifyArgs(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Ljava/util/List;)Lnet/minecraft/util/math/Vec3d;", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/shape/VoxelShapes;calculateMaxOffset(Lnet/minecraft/util/math/Direction$Axis;Lnet/minecraft/util/math/Box;Ljava/lang/Iterable;D)D"))
     private static void injected(Args args) {
         //(Direction.Axis axis, Box box, Iterable<VoxelShape> shapes, double maxDist
 
@@ -165,5 +137,5 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
 
 
         args.set(1, box);
-    }
+    }*/
 }

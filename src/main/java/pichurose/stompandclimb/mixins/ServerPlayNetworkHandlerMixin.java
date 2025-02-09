@@ -1,11 +1,16 @@
 package pichurose.stompandclimb.mixins;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,42 +19,37 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import pichurose.stompandclimb.interfaces.ClientLocationInterface;
 
-@Mixin(ServerPlayNetworkHandler.class)
+@Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ServerPlayNetworkHandlerMixin {
-    @Shadow public ServerPlayerEntity player;
+
+    @Shadow public ServerPlayer player;
 
     @Shadow
-    protected static double clampHorizontal(double d) {
+    private static double clampHorizontal(double d) {
         return 0;
     }
 
     @Shadow
-    protected static double clampVertical(double d) {
+    private static double clampVertical(double d) {
         return 0;
     }
 
-    @Shadow private double lastTickX;
+    @Shadow private double lastGoodX;
 
-    @Shadow private double lastTickY;
+    @Shadow private double lastGoodY;
 
-    @Shadow private double lastTickZ;
+    @Shadow private double lastGoodZ;
 
-    @Shadow private double updatedZ;
-
-    @Shadow private double updatedY;
-
-    @Shadow private double updatedX;
-
-    @Inject(method = "onPlayerMove", at = @At("HEAD"))
-    private void injected(PlayerMoveC2SPacket packet, CallbackInfo ci) {
+    @Inject(method = "handleMovePlayer", at = @At("HEAD"))
+    private void injected(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
         ClientLocationInterface clientLocationInterface = (ClientLocationInterface)player;
         double d = clampHorizontal(packet.getX(this.player.getX()));
         double e = clampVertical(packet.getY(this.player.getY()));
         double f = clampHorizontal(packet.getZ(this.player.getZ()));
-        double l = d - updatedX;
-        double m = e - updatedY;
-        double n = f - updatedZ;
-        clientLocationInterface.stompandclimb_updateCache(new Vec3d(l, m, n));
+        double l = d - lastGoodX;
+        double m = e - lastGoodY;
+        double n = f - lastGoodZ;
+        clientLocationInterface.stompandclimb_updateCache(new Vec3(l, m, n));
     }
 }
 //PlayerMoveC2SPacket

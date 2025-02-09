@@ -1,8 +1,9 @@
 package pichurose.stompandclimb.interfaces;
 
-import net.minecraft.util.math.Vec3d;
+
+import net.minecraft.world.phys.Vec3;
 
 public interface ClientLocationInterface {
 
-    void stompandclimb_updateCache(Vec3d vec);
+    void stompandclimb_updateCache(Vec3 vec);
 }

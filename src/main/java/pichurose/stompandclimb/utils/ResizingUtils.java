@@ -1,6 +1,7 @@
 package pichurose.stompandclimb.utils;
 
-import net.minecraft.entity.Entity;
+
+import net.minecraft.world.entity.Entity;
 import virtuoel.pehkui.util.ScaleUtils;
 
 import java.util.UUID;

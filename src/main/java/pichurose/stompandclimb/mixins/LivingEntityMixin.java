@@ -1,27 +1,23 @@
 package pichurose.stompandclimb.mixins;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageSources;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.vehicle.MinecartEntity;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Position;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.Minecart;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -42,57 +38,30 @@ import java.util.Optional;
 import java.util.stream.Stream;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin implements ClientLocationInterface {
-    @Shadow
-    public abstract void kill();
 
-    @Shadow
-    public abstract boolean damage(DamageSource source, float amount);
+    @Shadow public abstract EntityDimensions getDimensions(Pose pose);
 
-    @Shadow
-    private @Nullable DamageSource lastDamageSource;
-
-    @Shadow
-    public abstract @Nullable DamageSource getRecentDamageSource();
-
-    @Shadow
-    public abstract Box getBoundingBox(EntityPose pose);
-
-    @Shadow
-    public abstract EntityDimensions getDimensions(EntityPose pose);
-
-    @Shadow
-    public abstract float getMovementSpeed();
-
-    @Shadow
-    public float forwardSpeed;
-
-    @Shadow
-    private Optional<BlockPos> climbingPos;
-
-    @Shadow
-    protected abstract float getEyeHeight(EntityPose pose, EntityDimensions dimensions);
-
-    @Shadow protected abstract boolean shouldAlwaysDropXp();
-
-    public Vec3d playerVec = Vec3d.ZERO;
+    @Shadow private Optional<BlockPos> lastClimbablePos;
+    @Unique
+    public Vec3 playerVec = Vec3.ZERO;
 
 
 
     @Override
-    public void stompandclimb_updateCache(Vec3d vec) {
+    public void stompandclimb_updateCache(Vec3 vec) {
         playerVec = vec;
     }
 
 
 
 
-    @Inject(method = "pushAway", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "doPush", at = @At("HEAD"), cancellable = true)
     private void injected(Entity entity, CallbackInfo ci) {
-        if (entity instanceof MinecartEntity) {
+        if (entity instanceof Minecart) {
             //StompAndClimbForge.log("push called by minecart");
             return;
         }
-        if (((Entity)(Object) this).getPassengerList().contains(entity)) {
+        if (((Entity)(Object) this).getPassengers().contains(entity)) {
             //StompAndClimbForge.log("push called by passenger");
             return;
         }
@@ -100,17 +69,17 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         boolean softSocks = false;
         boolean hardHat = false;
 
-        if (entity.getPassengerList().contains(((Entity)(Object) this))) {
+        if (entity.getPassengers().contains(((Entity)(Object) this))) {
             //StompAndClimbForge.log("push called by passenger");
             softSocks = true;
         }
 
         float bootsArmor = 0;
-        Vec3d velocity = new Vec3d(0, 0, 0);
-        Vec3d nonPlayerVelocity = new Vec3d(0, 0, 0);
+        Vec3 velocity = new Vec3(0, 0, 0);
+        Vec3 nonPlayerVelocity = new Vec3(0, 0, 0);
         boolean tryStomp = false;
-        if (((Object) this) instanceof PlayerEntity player) {
-            for (ItemStack armorItem : player.getArmorItems()) {
+        if (((Object) this) instanceof Player player) {
+            for (ItemStack armorItem : player.getArmorSlots()) {
                 if (armorItem.isEmpty())
                     continue;
                 else if (armorItem.getItem() instanceof SoftSocksItem){
@@ -123,7 +92,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
                 }*/
                 else if (armorItem.getItem() instanceof ArmorItem armorItemInstance && armorItemInstance.getType() == ArmorItem.Type.BOOTS){
                     //StompAndClimbForge.log("armor item is " + armorItem.getItem().toString() + " and the defense is " + armorItemInstance.getDefense());
-                    bootsArmor = armorItemInstance.getProtection();
+                    bootsArmor = armorItemInstance.getDefense();
                 }
             }
 
@@ -133,10 +102,10 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
             if (velocity.x != 0 || velocity.y != 0 || velocity.z != 0) {
                 tryStomp = true;
             }
-            if (player.isSneaking()) {
+            if (player.isShiftKeyDown()) {
                 tryStomp = false;
-                double entityHeightDimensions = entity.getDimensions(EntityPose.STANDING).height;
-                double thisHeightDimensions = getDimensions(EntityPose.STANDING).height;
+                double entityHeightDimensions = entity.getDimensions(Pose.STANDING).height;
+                double thisHeightDimensions = getDimensions(Pose.STANDING).height;
                 double heightDiffDimensions = entityHeightDimensions / thisHeightDimensions;
                 if (heightDiffDimensions <= 1) {
                     //StompAndClimbForge.log("height difference not great enough");
@@ -145,7 +114,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
             }
 
         } else {
-            nonPlayerVelocity = ((Entity) (Object) this).getVelocity();
+            nonPlayerVelocity = ((Entity) (Object) this).getDeltaMovement();
             if (nonPlayerVelocity.x != 0 || nonPlayerVelocity.z != 0) {
                 tryStomp = true;
             }
@@ -153,16 +122,16 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
 
         if (tryStomp) {
             //StompAndClimbForge.log("tryStomp called");
-            double entityHeightDimensions = entity.getDimensions(EntityPose.STANDING).height;
-            double thisHeightDimensions = getDimensions(EntityPose.STANDING).height;
-            double thisYPos = ((Entity) (Object) this).getPos().y;
-            double theirYPos = entity.getPos().y + entityHeightDimensions;
+            double entityHeightDimensions = entity.getDimensions(Pose.STANDING).height;
+            double thisHeightDimensions = getDimensions(Pose.STANDING).height;
+            double thisYPos = ((Entity) (Object) this).position().y;
+            double theirYPos = entity.position().y + entityHeightDimensions;
             double YPosDifference = (Math.abs(thisYPos - theirYPos));
             boolean YPosCloseEnough = YPosDifference <= (thisHeightDimensions / 3);
             double heightDiffDimensions = thisHeightDimensions / entityHeightDimensions;
             if (entity instanceof LivingEntity && entity.isAlive() && heightDiffDimensions >= 4 && YPosCloseEnough) {
-                if (!(entity instanceof PlayerEntity) || ((entity instanceof PlayerEntity) && ((PlayerEntity) entity).canTakeDamage())) {
-                    for (ItemStack armorItem : entity.getArmorItems()) {
+                if (!(entity instanceof Player) || ((entity instanceof Player) && ((Player) entity).canBeSeenAsEnemy())) {
+                    for (ItemStack armorItem : entity.getArmorSlots()) {
                         if (armorItem.isEmpty())
                             continue;
                         else if (armorItem.getItem().equals(StompAndClimb.HARD_HAT)) {
@@ -170,18 +139,18 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
                         }
                     }
                     //StompAndClimbForge.log("stomp called");
-                    DamageSource damageSource = ((LivingEntity) (Object) this).getDamageSources().genericKill();
+                    DamageSource damageSource = ((LivingEntity) (Object) this).damageSources().genericKill();
                     //DamageSource damageSource = DamageSource.GENERIC;
 
                     if (hardHat && softSocks) {
-                        entity.damage(damageSource, 0);
+                        entity.hurt(damageSource, 0);
                     } else if (hardHat) {
-                        entity.damage(damageSource, 1);
+                        entity.hurt(damageSource, 1);
                     } else if (softSocks) {
-                        entity.damage(damageSource, 1);
+                        entity.hurt(damageSource, 1);
                     } else {
                         //StompAndClimbForge.log("stomp damage");
-                        int armorpoints = ((LivingEntity) entity).getArmor();
+                        int armorpoints = ((LivingEntity) entity).getArmorValue();
                         if (armorpoints <= 0) {
                             armorpoints = 1;
                         }
@@ -197,13 +166,13 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
                         double velocityZ = 0;
                         float speedDamageMultiplier = 1;
 
-                        Vec3d speedMultVelocity = new Vec3d(0, 0, 0);
+                        Vec3 speedMultVelocity = new Vec3(0, 0, 0);
 
-                        if (((Object) this) instanceof PlayerEntity) {
-                            speedMultVelocity = new Vec3d(velocity.x, velocity.y, velocity.z);
+                        if (((Object) this) instanceof Player) {
+                            speedMultVelocity = new Vec3(velocity.x, velocity.y, velocity.z);
                         }
                         else {
-                            speedMultVelocity = new Vec3d(nonPlayerVelocity.x, nonPlayerVelocity.y, nonPlayerVelocity.z);
+                            speedMultVelocity = new Vec3(nonPlayerVelocity.x, nonPlayerVelocity.y, nonPlayerVelocity.z);
                         }
 
 
@@ -220,7 +189,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
                         //StompAndClimbForge.log("push called by player with velocity " + velocityX + " " + velocityY + " " + velocityZ);
                         //StompAndClimbForge.log("velocity multiplied together is " + speedDamageMultiplier);
                         //StompAndClimb.log("damage: " + damageFull + "/" + damageFinal);
-                        entity.damage(damageSource, damageFinal);
+                        entity.hurt(damageSource, damageFinal);
                     }
                 }
             }
@@ -228,14 +197,14 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         ci.cancel();
     }
 
-    @Inject(at = @At("TAIL"), method = "isClimbing", cancellable = true)
+    @Inject(at = @At("TAIL"), method = "onClimbable", cancellable = true)
     public void postCheckClimbable(CallbackInfoReturnable<Boolean> cir) {
-        if (((Object) this) instanceof PlayerEntity) {
-            for (ItemStack armorItem : ((PlayerEntity) ((Object) this)).getArmorItems()) {
+        if (((Object) this) instanceof Player) {
+            for (ItemStack armorItem : ((Player) ((Object) this)).getArmorSlots()) {
                 if (armorItem.isEmpty())
                     continue;
                 else if (armorItem.getItem().equals(StompAndClimb.HOVER_BOOTS)) {
-                    climbingPos = Optional.of(((PlayerEntity) ((Object) this)).getBlockPos());
+                    lastClimbablePos = Optional.of(((Player) ((Object) this)).blockPosition());
                     cir.setReturnValue(true);
                     return;
                 }
@@ -244,24 +213,24 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
 
 
         LivingEntity entity = ((LivingEntity) (Object) this);
-        BlockPos pos = entity.getBlockPos();
-        Vec3d exactPos = entity.getPos();
+        BlockPos pos = entity.blockPosition();
+        Vec3 exactPos = entity.position();
         BlockPos eastPos = pos.east();
         BlockPos westPos = pos.west();
         BlockPos northPos = pos.north();
         BlockPos southPos = pos.south();
-        boolean posIsShovelable = entity.getWorld().getBlockState(pos).getHardness(entity.getWorld(), pos) > 0 && entity.getWorld().getBlockState(pos).getHardness(entity.getWorld(), pos) <= 1f;
-        boolean eastPosIsShovelable = entity.getWorld().getBlockState(eastPos).getHardness(entity.getWorld(), eastPos) > 0 && entity.getWorld().getBlockState(eastPos).getHardness(entity.getWorld(), eastPos) <= 1f;
-        boolean westPosIsShovelable = entity.getWorld().getBlockState(westPos).getHardness(entity.getWorld(), westPos) > 0 && entity.getWorld().getBlockState(westPos).getHardness(entity.getWorld(), westPos) <= 1f;
-        boolean northPosIsShovelable = entity.getWorld().getBlockState(northPos).getHardness(entity.getWorld(), northPos) > 0 && entity.getWorld().getBlockState(northPos).getHardness(entity.getWorld(), northPos) <= 1f;
-        boolean southPosIsShovelable = entity.getWorld().getBlockState(southPos).getHardness(entity.getWorld(), southPos) > 0 && entity.getWorld().getBlockState(southPos).getHardness(entity.getWorld(), southPos) <= 1f;
-        boolean posIsClimbable = !(entity.getWorld().getBlockState(pos).isAir()||(entity.getWorld().getBlockState(pos).isOf(Blocks.LIGHT)));
-        boolean eastIsClimbable = !(entity.getWorld().getBlockState(eastPos).isAir()||(entity.getWorld().getBlockState(eastPos).isOf(Blocks.LIGHT)));
-        boolean westIsClimbable = !(entity.getWorld().getBlockState(westPos).isAir()||(entity.getWorld().getBlockState(westPos).isOf(Blocks.LIGHT)));
-        boolean northIsClimbable = !(entity.getWorld().getBlockState(northPos).isAir()||(entity.getWorld().getBlockState(northPos).isOf(Blocks.LIGHT)));
-        boolean southIsClimbable = !(entity.getWorld().getBlockState(southPos).isAir()||(entity.getWorld().getBlockState(southPos).isOf(Blocks.LIGHT)));
+        boolean posIsShovelable = entity.level().getBlockState(pos).getDestroySpeed(entity.level(), pos) > 0 && entity.level().getBlockState(pos).getDestroySpeed(entity.level(), pos) <= 1f;
+        boolean eastPosIsShovelable = entity.level().getBlockState(eastPos).getDestroySpeed(entity.level(), eastPos) > 0 && entity.level().getBlockState(eastPos).getDestroySpeed(entity.level(), eastPos) <= 1f;
+        boolean westPosIsShovelable = entity.level().getBlockState(westPos).getDestroySpeed(entity.level(), westPos) > 0 && entity.level().getBlockState(westPos).getDestroySpeed(entity.level(), westPos) <= 1f;
+        boolean northPosIsShovelable = entity.level().getBlockState(northPos).getDestroySpeed(entity.level(), northPos) > 0 && entity.level().getBlockState(northPos).getDestroySpeed(entity.level(), northPos) <= 1f;
+        boolean southPosIsShovelable = entity.level().getBlockState(southPos).getDestroySpeed(entity.level(), southPos) > 0 && entity.level().getBlockState(southPos).getDestroySpeed(entity.level(), southPos) <= 1f;
+        boolean posIsClimbable = !(entity.level().getBlockState(pos).isAir()||(entity.level().getBlockState(pos).is(Blocks.LIGHT)));
+        boolean eastIsClimbable = !(entity.level().getBlockState(eastPos).isAir()||(entity.level().getBlockState(eastPos).is(Blocks.LIGHT)));
+        boolean westIsClimbable = !(entity.level().getBlockState(westPos).isAir()||(entity.level().getBlockState(westPos).is(Blocks.LIGHT)));
+        boolean northIsClimbable = !(entity.level().getBlockState(northPos).isAir()||(entity.level().getBlockState(northPos).is(Blocks.LIGHT)));
+        boolean southIsClimbable = !(entity.level().getBlockState(southPos).isAir()||(entity.level().getBlockState(southPos).is(Blocks.LIGHT)));
         if (eastIsClimbable) {
-            double eastPosWall = eastPos.toCenterPos().x - 0.5;
+            double eastPosWall = eastPos.getCenter().x - 0.5;
             double distToEastPos = Math.abs(exactPos.x - eastPosWall);
             if (distToEastPos > 0.0625){
                 eastIsClimbable = false;
@@ -271,7 +240,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         }
 
         if (westIsClimbable) {
-            double westPosWall = westPos.toCenterPos().x + 0.5;
+            double westPosWall = westPos.getCenter().x + 0.5;
             double distToWestPos = Math.abs(exactPos.x - westPosWall);
             if (distToWestPos > 0.0625){
                 westIsClimbable = false;
@@ -281,7 +250,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         }
 
         if (northIsClimbable) {
-            double northPosWall = northPos.toCenterPos().z + 0.5;
+            double northPosWall = northPos.getCenter().z + 0.5;
             double distToNorthPos = Math.abs(exactPos.z - northPosWall);
             if (distToNorthPos > 0.0625){
                 northIsClimbable = false;
@@ -291,7 +260,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         }
 
         if (southIsClimbable) {
-            double southPosWall = southPos.toCenterPos().z - 0.5;
+            double southPosWall = southPos.getCenter().z - 0.5;
             double distToSouthPos = Math.abs(exactPos.z - southPosWall);
             if (distToSouthPos > 0.0625){
                 southIsClimbable = false;
@@ -305,25 +274,25 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         }
 
 //BlockPos.isWithinDistance
-        //BlockState state = entity.getWorld().getBlockState(pos);
+        //BlockState state = entity.level().getBlockState(pos);
         /*if (state.getBlock() instanceof IContextAware ladderBlock) {
             if (ladderBlock.isLadder(
-                    state, entity.getWorld(),
+                    state, entity.level(),
                     pos, entity
             )) {
                 climbingPos = Optional.of(pos);
                 cir.setReturnValue(true);
             }
         }*/
-        if (((Object) this) instanceof PlayerEntity) {
-            for (ItemStack item : ((PlayerEntity) ((Object) this)).getHandItems()) { // || item.isOf(Items.)
-                boolean isSlime = item.isOf(Items.SLIME_BALL) || item.isOf(Items.SLIME_BLOCK) || item.isOf(Items.CHAIN) || item.isOf(Items.TWISTING_VINES) || item.isOf(Items.WEEPING_VINES) || item.isOf(Items.VINE) || item.isOf(Items.COBWEB) || item.isOf(Items.STRING) || item.isOf(Items.LADDER) || item.isOf(Items.TRIPWIRE_HOOK) || item.isOf(Items.HONEY_BLOCK) || item.isOf(Items.HONEYCOMB) || item.isOf(Items.HONEYCOMB_BLOCK) || item.isOf(Items.STICKY_PISTON) || item.isOf(Items.FISHING_ROD) || item.isOf(Items.PHANTOM_MEMBRANE);
-                if (((PlayerEntity) ((Object) this)).getDimensions(EntityPose.STANDING).height <= .5 && (eastPosIsShovelable || westPosIsShovelable || northPosIsShovelable || southPosIsShovelable)) {
-                    climbingPos = Optional.of(pos);
+        if (((Object) this) instanceof Player) {
+            for (ItemStack item : ((Player) ((Object) this)).getHandSlots()) { // || item.of(Items.)
+                boolean isSlime = item.is(Items.SLIME_BALL) || item.is(Items.SLIME_BLOCK) || item.is(Items.CHAIN) || item.is(Items.TWISTING_VINES) || item.is(Items.WEEPING_VINES) || item.is(Items.VINE) || item.is(Items.COBWEB) || item.is(Items.STRING) || item.is(Items.LADDER) || item.is(Items.TRIPWIRE_HOOK) || item.is(Items.HONEY_BLOCK) || item.is(Items.HONEYCOMB) || item.is(Items.HONEYCOMB_BLOCK) || item.is(Items.STICKY_PISTON) || item.is(Items.FISHING_ROD) || item.is(Items.PHANTOM_MEMBRANE);
+                if (((Player) ((Object) this)).getDimensions(Pose.STANDING).height <= .5 && (eastPosIsShovelable || westPosIsShovelable || northPosIsShovelable || southPosIsShovelable)) {
+                    lastClimbablePos = Optional.of(pos);
                     cir.setReturnValue(true);
                 }
                 else if(isSlime){
-                    climbingPos = Optional.of(pos);
+                    lastClimbablePos = Optional.of(pos);
                     cir.setReturnValue(true);
                 }
             }
@@ -331,9 +300,9 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
 
     }
 
-    @Inject(method = "canHaveStatusEffect", at = @At("HEAD"), cancellable = true)
-    private void immuneToPoisonIfBig(StatusEffectInstance effect, CallbackInfoReturnable<Boolean> cir) {
-        if ((((Object) this) instanceof PlayerEntity) && effect.getEffectType() == StatusEffects.POISON && effect.getAmplifier() == 0 && ResizingUtils.getSize((Entity)(Object)this) >= 8) {
+    @Inject(method = "canBeAffected", at = @At("HEAD"), cancellable = true)
+    private void immuneToPoisonIfBig(MobEffectInstance effect, CallbackInfoReturnable<Boolean> cir) {
+        if ((((Object) this) instanceof Player) && effect.getEffect() == MobEffects.POISON && effect.getAmplifier() == 0 && ResizingUtils.getSize((Entity)(Object)this) >= 8) {
             cir.setReturnValue(false);
         }
     }

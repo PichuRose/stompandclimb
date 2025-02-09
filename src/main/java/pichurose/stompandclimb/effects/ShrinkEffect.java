@@ -1,27 +1,34 @@
 package pichurose.stompandclimb.effects;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import pichurose.stompandclimb.StompAndClimb;
 import pichurose.stompandclimb.utils.ResizingUtils;
 
-public class ShrinkEffect extends StatusEffect {
+public class ShrinkEffect extends MobEffect {
     private int tick = 0;
 
     public ShrinkEffect() {
-        super(StatusEffectCategory.HARMFUL, 0x9400ff  );
+        super(MobEffectCategory.HARMFUL, 0x9400ff  );
     }
 
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean isDurationEffectTick(int duration, int amplifier) {
         return true;
     }
 
 
     @Override
-    public void applyUpdateEffect(LivingEntity entity, int amplifier) {
-        if(entity.getWorld().isClient){
+    public void applyEffectTick(LivingEntity entity, int amplifier) {
+        if(entity.level().isClientSide()){
             return;
         }
         if(amplifier>10){

@@ -1,49 +1,36 @@
 package pichurose.stompandclimb;
 
-import com.ibm.icu.text.DisplayContext;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.*;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.Potions;
-import net.minecraft.recipe.BrewingRecipeRegistry;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.commands.Commands;
+import net.minecraft.core.DefaultedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.*;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.util.Locals;
-import oshi.hardware.Display;
 import pichurose.stompandclimb.commands.StompAndClimbCustomCarryCommand;
 import pichurose.stompandclimb.effects.CurseOfShrinkingEffect;
 import pichurose.stompandclimb.effects.GrowEffect;
@@ -52,153 +39,107 @@ import pichurose.stompandclimb.interfaces.CustomCarryOffsetInterface;
 import pichurose.stompandclimb.items.*;
 import pichurose.stompandclimb.materials.HardHatMaterial;
 import pichurose.stompandclimb.materials.HoverBootsMaterial;
-import pichurose.stompandclimb.materials.SoftSocksMaterial;
 import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.PehkuiSupport;
-
-import java.awt.*;
-import java.util.function.Supplier;
 
 public class StompAndClimb implements ModInitializer {
     public static final String MODID = "stompandclimb";
 
+    public static final Item HARD_HAT = registerItem("hard_hat", new ArmorItem(new HardHatMaterial(), ArmorItem.Type.HELMET, new Item.Properties()));
+    public static final Item SOFT_SOCKS = registerItem("soft_socks", new SoftSocksItem(new Item.Properties()));
+    public static final Item HOVER_BOOTS = registerItem("hover_boots", new HoverBootsItem(new HoverBootsMaterial(), ArmorItem.Type.BOOTS, new Item.Properties()));
 
-    /*public static final Item HARD_HAT = new ArmorItem(HARD_HAT_MATERIAL, ArmorItem.Type.HELMET, new Item.Settings());
-    public static final Item SOFT_SOCKS = new ArmorItem(SOFT_SOCKS_MATERIAL, ArmorItem.Type.BOOTS, new Item.Settings());
-    public static final Item HOVER_BOOTS = new HoverBootsItem(HOVER_BOOTS_MATERIAL, ArmorItem.Type.BOOTS, new Item.Settings());
+    public static final Item NETHERITE_RING = registerItem("netherite_ring", new RingItem(new Item.Properties(), 16));
+    public static final Item AMETHYST_RING = registerItem("amethyst_ring", new RingItem(new Item.Properties(), 8));
+    public static final Item DIAMOND_RING = registerItem("diamond_ring", new RingItem(new Item.Properties(), 4));
+    public static final Item EMERALD_RING = registerItem("emerald_ring", new RingItem(new Item.Properties(), 2));
+    public static final Item QUARTZ_RING = registerItem("quartz_ring", new RingItem(new Item.Properties(), 1));
+    public static final Item NETHERBRICK_RING = registerItem("netherbrick_ring", new RingItem(new Item.Properties(), .5f));
+    public static final Item SEA_RING = registerItem("sea_ring", new RingItem(new Item.Properties(), .25f));
+    public static final Item REDSTONE_RING = registerItem("redstone_ring", new RingItem(new Item.Properties(), .125f));
+    public static final Item SPAWNER_RING = registerItem("spawner_ring", new RingItem(new Item.Properties(), .0625f));
+    public static final Item COPPER_RING = registerItem("copper_ring", new CopperRingItem(new Item.Properties()));
+    public static final Item RUSTED_RING = registerItem("rusted_ring", new RustedCopperRingItem(new Item.Properties()));
 
-    public static final Item AMETHYST_RING = new RingItem(new Item.Settings(), 8);
-    public static final Item DIAMOND_RING = new RingItem(new Item.Settings(), 4);
-    public static final Item EMERALD_RING = new RingItem(new Item.Settings(), 2);
-    public static final Item QUARTZ_RING = new RingItem(new Item.Settings(), 1);
-    public static final Item SEA_RING = new RingItem(new Item.Settings(), .25f);
-    public static final Item REDSTONE_RING = new RingItem(new Item.Settings(), .125f);
-    public static final Item SPAWNER_RING = new RingItem(new Item.Settings(), .0625f);
+    public static final Item NETHERITE_COLLAR = registerItem("netherite_collar", new CollarItem(new Item.Properties(), 16));
+    public static final Item AMETHYST_COLLAR = registerItem("amethyst_collar", new CollarItem(new Item.Properties(), 8));
+    public static final Item DIAMOND_COLLAR = registerItem("diamond_collar", new CollarItem(new Item.Properties(), 4));
+    public static final Item EMERALD_COLLAR = registerItem("emerald_collar", new CollarItem(new Item.Properties(), 2));
+    public static final Item QUARTZ_COLLAR = registerItem("quartz_collar", new CollarItem(new Item.Properties(), 1));
+    public static final Item NETHERBRICK_COLLAR = registerItem("netherbrick_collar", new CollarItem(new Item.Properties(), .5f));
+    public static final Item SEA_COLLAR = registerItem("sea_collar", new CollarItem(new Item.Properties(), .25f));
+    public static final Item REDSTONE_COLLAR = registerItem("redstone_collar", new CollarItem(new Item.Properties(), .125f));
+    public static final Item SPAWNER_COLLAR = registerItem("spawner_collar", new CollarItem(new Item.Properties(), .0625f));
+    public static final Item COPPER_COLLAR = registerItem("copper_collar", new CopperCollarItem(new Item.Properties()));
+    public static final Item RUSTED_COLLAR = registerItem("rusted_collar", new RustedCopperCollarItem(new Item.Properties()));
 
-    public static final Item COPPER_RING = new CopperRingItem(new Item.Settings());
-    public static final Item RUSTED_RING = new RustedCopperRingItem(new Item.Settings());
+    public static final MobEffect CURSE_OF_SHRINKING = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "curse_of_shrinking"), new CurseOfShrinkingEffect());
+    public static final MobEffect GROW_EFFECT = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "grow_effect"), new GrowEffect());
+    public static final MobEffect SHRINK_EFFECT = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "shrink_effect"), new CurseOfShrinkingEffect());
 
-    public static final Item DINI = new Item(new Item.Settings().food(FoodComponents.COOKIE));
-    public static final Item GOLDEN_DINI = new Item(new Item.Settings().food(FoodComponents.CARROT));
-
-    public static final StatusEffect CURSE_OF_SHRINKING = new CurseOfShrinkingEffect();
-    public static final StatusEffect GROW_EFFECT = new GrowEffect();
-    public static final StatusEffect SHRINK_EFFECT = new ShrinkEffect();
-
-    public static final Potion GROW_POTION =
-            Registry.register(Registries.POTION, new Identifier(StompAndClimb.MODID, "grow_potion"),
-                    new Potion(new StatusEffectInstance(StompAndClimb.GROW_EFFECT, 3600, 0)));
-
-    public static final Potion SHRINK_POTION =
-            Registry.register(Registries.POTION, new Identifier(StompAndClimb.MODID, "shrink_potion"),
-                    new Potion(new StatusEffectInstance(StompAndClimb.SHRINK_EFFECT, 3600, 0)));
-    */
-
-
-    public static final Item HARD_HAT = new ArmorItem(new HardHatMaterial(), ArmorItem.Type.HELMET, new Item.Settings());
-    public static final Item SOFT_SOCKS = new SoftSocksItem(new Item.Settings());
-    public static final Item HOVER_BOOTS = new HoverBootsItem(new HoverBootsMaterial(), ArmorItem.Type.BOOTS, new Item.Settings());
-
-    public static final Item NETHERITE_RING = new RingItem(new Item.Settings(),16);
-    public static final Item AMETHYST_RING = new RingItem(new Item.Settings(),8);
-    public static final Item DIAMOND_RING = new RingItem(new Item.Settings(),4);
-    public static final Item EMERALD_RING = new RingItem(new Item.Settings(),2);
-    public static final Item QUARTZ_RING = new RingItem(new Item.Settings(),1);
-    public static final Item NETHERBRICK_RING = new RingItem(new Item.Settings(),.5f);
-    public static final Item SEA_RING = new RingItem(new Item.Settings(),.25f);
-    public static final Item REDSTONE_RING = new RingItem(new Item.Settings(),.125f);
-    public static final Item SPAWNER_RING = new RingItem(new Item.Settings(),.0625f);
-    public static final Item COPPER_RING = new CopperRingItem(new Item.Settings());
-    public static final Item RUSTED_RING = new RustedCopperRingItem(new Item.Settings());
-
-    public static final Item NETHERITE_COLLAR = new CollarItem(new Item.Settings(), 16);
-    public static final Item AMETHYST_COLLAR = new CollarItem(new Item.Settings(), 8);
-    public static final Item DIAMOND_COLLAR = new CollarItem(new Item.Settings(), 4);
-    public static final Item EMERALD_COLLAR = new CollarItem(new Item.Settings(), 2);
-    public static final Item QUARTZ_COLLAR = new CollarItem(new Item.Settings(), 1);
-    public static final Item NETHERBRICK_COLLAR = new CollarItem(new Item.Settings(), .5f);
-    public static final Item SEA_COLLAR = new CollarItem(new Item.Settings(), .25f);
-    public static final Item REDSTONE_COLLAR = new CollarItem(new Item.Settings(), .125f);
-    public static final Item SPAWNER_COLLAR = new CollarItem(new Item.Settings(), .0625f);
-    public static final Item COPPER_COLLAR = new CopperCollarItem(new Item.Settings());
-    public static final Item RUSTED_COLLAR = new RustedCopperCollarItem(new Item.Settings());
-
-
-
-
-
-    public static final StatusEffect CURSE_OF_SHRINKING = new CurseOfShrinkingEffect();
-    public static final StatusEffect GROW_EFFECT = new GrowEffect();
-    public static final StatusEffect SHRINK_EFFECT = new ShrinkEffect();
-
-    private static final ItemGroup ITEM_GROUP = FabricItemGroup.builder()
+    private static final CreativeModeTab ITEM_GROUP = Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, new ResourceLocation(MODID, "ringsandgear"), FabricItemGroup.builder()
             .icon(() -> new ItemStack(SPAWNER_RING))
-            .displayName(Text.translatable("itemGroup.stompandclimb.ringsandgear"))
-            .entries((context, entries) -> {
-                entries.add(HARD_HAT);
-                entries.add(SOFT_SOCKS);
-                entries.add(HOVER_BOOTS);
-                entries.add(NETHERITE_RING);
-                entries.add(AMETHYST_RING);
-                entries.add(DIAMOND_RING);
-                entries.add(EMERALD_RING);
-                entries.add(QUARTZ_RING);
-                entries.add(NETHERBRICK_RING);
-                entries.add(SEA_RING);
-                entries.add(REDSTONE_RING);
-                entries.add(SPAWNER_RING);
-                entries.add(COPPER_RING);
-                entries.add(RUSTED_RING);
-                entries.add(NETHERITE_COLLAR);
-                entries.add(AMETHYST_COLLAR);
-                entries.add(DIAMOND_COLLAR);
-                entries.add(EMERALD_COLLAR);
-                entries.add(QUARTZ_COLLAR);
-                entries.add(NETHERBRICK_COLLAR);
-                entries.add(SEA_COLLAR);
-                entries.add(REDSTONE_COLLAR);
-                entries.add(SPAWNER_COLLAR);
-                entries.add(COPPER_COLLAR);
-                entries.add(RUSTED_COLLAR);
+            .title(Component.translatable("itemGroup.stompandclimb.ringsandgear"))
+            .displayItems((context, entries) -> {
+                entries.accept(HARD_HAT);
+                entries.accept(SOFT_SOCKS);
+                entries.accept(HOVER_BOOTS);
+                entries.accept(NETHERITE_RING);
+                entries.accept(AMETHYST_RING);
+                entries.accept(DIAMOND_RING);
+                entries.accept(EMERALD_RING);
+                entries.accept(QUARTZ_RING);
+                entries.accept(NETHERBRICK_RING);
+                entries.accept(SEA_RING);
+                entries.accept(REDSTONE_RING);
+                entries.accept(SPAWNER_RING);
+                entries.accept(COPPER_RING);
+                entries.accept(RUSTED_RING);
+                entries.accept(NETHERITE_COLLAR);
+                entries.accept(AMETHYST_COLLAR);
+                entries.accept(DIAMOND_COLLAR);
+                entries.accept(EMERALD_COLLAR);
+                entries.accept(QUARTZ_COLLAR);
+                entries.accept(NETHERBRICK_COLLAR);
+                entries.accept(SEA_COLLAR);
+                entries.accept(REDSTONE_COLLAR);
+                entries.accept(SPAWNER_COLLAR);
+                entries.accept(COPPER_COLLAR);
+                entries.accept(RUSTED_COLLAR);
             })
-            .build();
+            .build());
 
     public StompAndClimb() {
         registerSetup(this::setup);
     }
 
-    //@Override
     public void registerSetup(Runnable common) {
         if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT))
             ClientLifecycleEvents.CLIENT_STARTED.register((a) -> common.run());
         else ServerLifecycleEvents.SERVER_STARTED.register((a) -> common.run());
-
-
     }
 
-    public static void handleKeyPressServer(PlayerEntity player, int hitResultType, @Nullable Entity target, boolean smallEnough, Vec3d hitPos){
+    public static void handleKeyPressServer(Player player, int hitResultType, @Nullable Entity target, boolean smallEnough, Vec3 hitPos) {
         if (hitResultType == 1) {
             if (smallEnough) {
                 assert target != null;
                 if (target.getVehicle() == null) {
                     target.startRiding(player, true);
-
                 }
             }
         } else if (hitResultType == 0) {
-            for (Entity passenger : player.getPassengerList()) {
+            for (Entity passenger : player.getPassengers()) {
                 passenger.stopRiding();
-                passenger.teleport(hitPos.x, hitPos.y, hitPos.z);
-                passenger.setPose(EntityPose.STANDING);
+                passenger.teleportTo(hitPos.x, hitPos.y, hitPos.z);
+                passenger.setPose(Pose.STANDING);
             }
         }
     }
 
-
-    public static void handleKeyPressClient(PlayerEntity player) {
-        HitResult hitResult = MinecraftClient.getInstance().crosshairTarget;
+    public static void handleKeyPressClient(LocalPlayer player) {
+        HitResult hitResult = Minecraft.getInstance().hitResult;
         int hitResultType = -1;
-        if(hitResult == null)
+        if (hitResult == null)
             hitResultType = 0;
         else
             hitResultType = hitResult.getType() == HitResult.Type.ENTITY ? 1 : 0;
@@ -206,86 +147,55 @@ public class StompAndClimb implements ModInitializer {
         boolean smallEnough = false;
         if (hitResultType == 1) {
             target = ((EntityHitResult) hitResult).getEntity();
-            smallEnough = (player.getDimensions(EntityPose.STANDING).height / target.getDimensions(EntityPose.STANDING).height) >= 3;
-
+            smallEnough = (player.getDimensions(Pose.STANDING).height / target.getDimensions(Pose.STANDING).height) >= 3;
         }
-        Vec3d hitPos = null;
-        if(hitResult != null)
-            hitPos = hitResult.getPos();
+        Vec3 hitPos = null;
+        if (hitResult != null)
+            hitPos = hitResult.getLocation();
 
         if (hitResultType == 1) {
             if (smallEnough) {
                 if (target.getVehicle() == null) {
                     target.startRiding(player, true);
-                    //target.setPosition(player.getX(), player.getY()-1, player.getZ());
                 }
             }
         } else if (hitPos != null) {
-            for (Entity passenger : player.getPassengerList()) {
+            for (Entity passenger : player.getPassengers()) {
                 passenger.stopRiding();
-                passenger.teleport(hitPos.x, hitPos.y, hitPos.z);
-                passenger.setPose(EntityPose.STANDING);
+                passenger.teleportTo(hitPos.x, hitPos.y, hitPos.z);
+                passenger.setPose(Pose.STANDING);
             }
         }
 
-
-        PacketByteBuf buf = PacketByteBufs.create();
+        FriendlyByteBuf buf = PacketByteBufs.create();
         buf.writeInt(hitResultType);
         buf.writeInt(target != null ? target.getId() : -1);
         buf.writeBoolean(smallEnough);
         buf.writeDouble(hitPos.x);
         buf.writeDouble(hitPos.y);
         buf.writeDouble(hitPos.z);
-        //StompAndClimbForge.CHANNEL.sendToServer(new PickupTeleportPacket(buf));
-        assert StompAndClimbNetworkingConstants.PICKUP_TELEPORT_PACKET != null;
         ClientPlayNetworking.send(StompAndClimbNetworkingConstants.PICKUP_TELEPORT_PACKET, buf);
+    }
+
+    public static Item registerItem(String string, Item item) {
+        return registerItem(new ResourceLocation(MODID, string), item);
+    }
+
+    public static Item registerItem(ResourceLocation resourceLocation, Item item) {
+        return registerItem(ResourceKey.create(BuiltInRegistries.ITEM.key(), resourceLocation), item);
+    }
+
+    public static Item registerItem(ResourceKey<Item> resourceKey, Item item) {
+        if (item instanceof BlockItem) {
+            ((BlockItem) item).registerBlocks(Item.BY_BLOCK, item);
+        }
+        return Registry.register(BuiltInRegistries.ITEM, resourceKey, item);
     }
 
     @Override
     public void onInitialize() {
-        Registry.register(Registries.ITEM, new Identifier(MODID, "hard_hat"), HARD_HAT);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "soft_socks"), SOFT_SOCKS);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "hover_boots"), HOVER_BOOTS);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "netherite_ring"), NETHERITE_RING);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "amethyst_ring"), AMETHYST_RING);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "diamond_ring"), DIAMOND_RING);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "emerald_ring"), EMERALD_RING);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "quartz_ring"), QUARTZ_RING);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "netherbrick_ring"), NETHERBRICK_RING);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "sea_ring"), SEA_RING);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "redstone_ring"), REDSTONE_RING);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "spawner_ring"), SPAWNER_RING);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "copper_ring"), COPPER_RING);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "rusted_ring"), RUSTED_RING);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "netherite_collar"), NETHERITE_COLLAR);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "amethyst_collar"), AMETHYST_COLLAR);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "diamond_collar"), DIAMOND_COLLAR);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "emerald_collar"), EMERALD_COLLAR);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "quartz_collar"), QUARTZ_COLLAR);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "netherbrick_collar"), NETHERBRICK_COLLAR);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "sea_collar"), SEA_COLLAR);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "redstone_collar"), REDSTONE_COLLAR);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "spawner_collar"), SPAWNER_COLLAR);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "copper_collar"), COPPER_COLLAR);
-        Registry.register(Registries.ITEM, new Identifier(MODID, "rusted_collar"), RUSTED_COLLAR);
-        Registry.register(Registries.STATUS_EFFECT, new Identifier(MODID, "curse_of_shrinking"), CURSE_OF_SHRINKING);
-        Registry.register(Registries.STATUS_EFFECT, new Identifier(MODID, "grow_effect"), GROW_EFFECT);
-        Registry.register(Registries.STATUS_EFFECT, new Identifier(MODID, "shrink_effect"), SHRINK_EFFECT);
-
-        //StompAndClimbPotions.registerPotions();
-
-        /*ItemGroupEvents.modifyEntriesEvent(ItemGroups.FOOD_AND_DRINK).register(content -> {
-            content.add(new ItemStack((ItemConvertible) GROW_POTION));
-        });*/
-
-        //brown shrinks, red grows
-
-
-
-        Registry.register(Registries.ITEM_GROUP, Identifier.of(MODID, "ringsandgear"), ITEM_GROUP);
         StompAndClimbPotions.register();
 
-        assert StompAndClimbNetworkingConstants.PICKUP_TELEPORT_PACKET != null;
         ServerPlayNetworking.registerGlobalReceiver(StompAndClimbNetworkingConstants.PICKUP_TELEPORT_PACKET, (server, player, handler, buf, responseSender) -> {
             int hitResultType = buf.readInt();
             int targetId = buf.readInt();
@@ -293,35 +203,32 @@ public class StompAndClimb implements ModInitializer {
             double x = buf.readDouble();
             double y = buf.readDouble();
             double z = buf.readDouble();
-            Entity target = targetId != -1 ? player.getServerWorld().getEntityById(targetId) : null;
-            Vec3d hitPos = new Vec3d(x, y, z);
+            Entity target = targetId != -1 ? player.getServer().overworld().getEntity(targetId) : null;
+            Vec3 hitPos = new Vec3(x, y, z);
             server.execute(() -> handleKeyPressServer(player, hitResultType, target, smallEnough, hitPos));
         });
 
-        assert StompAndClimbNetworkingConstants.CUSTOM_CARRY_POS_CLIENT_PACKET != null;
         ClientPlayNetworking.registerGlobalReceiver(StompAndClimbNetworkingConstants.CUSTOM_CARRY_POS_CLIENT_PACKET, (client, handler, buf, responseSender) -> {
-            // Read packet data on the event loop
             double x = buf.readDouble();
             double y = buf.readDouble();
             double z = buf.readDouble();
 
             client.execute(() -> {
-                CustomCarryOffsetInterface customCarryOffsetInterface = (CustomCarryOffsetInterface)(client.player);
+                CustomCarryOffsetInterface customCarryOffsetInterface = (CustomCarryOffsetInterface) (client.player);
                 customCarryOffsetInterface.stompandclimb_updateCustomCarryCache(x, y, z);
             });
         });
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            dispatcher.register(CommandManager.literal("sac_cc")
-                    .then(CommandManager.argument("x", DoubleArgumentType.doubleArg(-1, 1))
-                            .then(CommandManager.argument("y", DoubleArgumentType.doubleArg(-2, 1))
-                                    .then(CommandManager.argument("z", DoubleArgumentType.doubleArg(-1, 1))
-                    .executes(StompAndClimbCustomCarryCommand::executeCommandWithArg)))));
+            dispatcher.register(Commands.literal("sac_cc")
+                    .then(Commands.argument("x", DoubleArgumentType.doubleArg(-1, 1))
+                            .then(Commands.argument("y", DoubleArgumentType.doubleArg(-2, 1))
+                                    .then(Commands.argument("z", DoubleArgumentType.doubleArg(-1, 1))
+                                            .executes(StompAndClimbCustomCarryCommand::executeCommandWithArg)))));
         });
     }
 
     private void setup() {
         PehkuiSupport.setup();
-
     }
 }

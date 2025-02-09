@@ -1,31 +1,30 @@
 package pichurose.stompandclimb.materials;
 
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ArmorMaterial;
-import net.minecraft.item.ArmorMaterials;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.sound.SoundEvent;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.crafting.Ingredient;
 import pichurose.stompandclimb.StompAndClimb;
 
 public class HardHatMaterial implements ArmorMaterial {
 
     @Override
-    public int getDurability(ArmorItem.Type type) {
-        //ArmorMaterials.IRON.getDurability(ArmorItem.Type.BOOTS);
+    public int getDurabilityForType(ArmorItem.Type type) {
         return 69420;
     }
 
-
-
     @Override
-    public int getProtection(ArmorItem.Type type) {
-        return ArmorMaterials.DIAMOND.getProtection(ArmorItem.Type.HELMET);
+    public int getDefenseForType(ArmorItem.Type type) {
+        return ArmorMaterials.DIAMOND.getDefenseForType(ArmorItem.Type.HELMET);
     }
 
     @Override
-    public int getEnchantability() {
-        return ArmorMaterials.GOLD.getEnchantability();
+    public int getEnchantmentValue() {
+        return ArmorMaterials.GOLD.getEnchantmentValue();
     }
 
     @Override
@@ -35,7 +34,7 @@ public class HardHatMaterial implements ArmorMaterial {
 
     @Override
     public Ingredient getRepairIngredient() {
-        return Ingredient.ofItems(Items.COPPER_INGOT);
+        return Ingredient.of(Items.COPPER_INGOT);
     }
 
     @Override

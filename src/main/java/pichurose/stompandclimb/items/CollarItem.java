@@ -23,12 +23,15 @@ public class CollarItem extends Item {
         if(user.getCooldowns().isOnCooldown(this)){
             return super.interactLivingEntity(stack, user, entity, hand);
         }
-        ResizingUtils.setSize(entity, SIZE);
-        if(entity instanceof Player){
-            user.getCooldowns().addCooldown(this, 200);
-        }
-        else{
-            user.getCooldowns().addCooldown(this, 20);
+
+        if(ResizingUtils.getSize(entity) != SIZE){
+            ResizingUtils.setSize(entity, SIZE);
+            if(entity instanceof Player){
+                user.getCooldowns().addCooldown(this, 200);
+            }
+            else{
+                user.getCooldowns().addCooldown(this, 20);
+            }
         }
 
 

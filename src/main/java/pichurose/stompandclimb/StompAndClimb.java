@@ -1,6 +1,7 @@
 package pichurose.stompandclimb;
 
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -73,6 +74,10 @@ public class StompAndClimb implements ModInitializer {
     public static final Item COPPER_COLLAR = registerItem("copper_collar", new CopperCollarItem(new Item.Properties()));
     public static final Item RUSTED_COLLAR = registerItem("rusted_collar", new RustedCopperCollarItem(new Item.Properties()));
 
+    public static final Item OMNIRING = registerItem("omniring", new OmniRingItem(new Item.Properties()));
+    public static final Item OMNICOLLAR = registerItem("omnicollar", new OmniCollarItem(new Item.Properties()));
+
+
     public static final MobEffect CURSE_OF_SHRINKING = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "curse_of_shrinking"), new CurseOfShrinkingEffect());
     public static final MobEffect GROW_EFFECT = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "grow_effect"), new GrowEffect());
     public static final MobEffect SHRINK_EFFECT = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "shrink_effect"), new CurseOfShrinkingEffect());
@@ -106,6 +111,8 @@ public class StompAndClimb implements ModInitializer {
                 entries.accept(SPAWNER_COLLAR);
                 entries.accept(COPPER_COLLAR);
                 entries.accept(RUSTED_COLLAR);
+                entries.accept(OMNIRING);
+                entries.accept(OMNICOLLAR);
             })
             .build());
 
@@ -213,19 +220,24 @@ public class StompAndClimb implements ModInitializer {
             double x = buf.readDouble();
             double y = buf.readDouble();
             double z = buf.readDouble();
-
+            boolean holdOutHand = buf.readBoolean();
             client.execute(() -> {
                 CustomCarryOffsetInterface customCarryOffsetInterface = (CustomCarryOffsetInterface) (client.player);
-                customCarryOffsetInterface.stompandclimb_updateCustomCarryCache(x, y, z);
+                customCarryOffsetInterface.stompandclimb_updateCustomCarryCache(x, y, z, holdOutHand);
             });
         });
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            dispatcher.register(Commands.literal("sac_cc")
+            dispatcher.register(Commands.literal("customcarry")
                     .then(Commands.argument("x", DoubleArgumentType.doubleArg(-1, 1))
                             .then(Commands.argument("y", DoubleArgumentType.doubleArg(-2, 1))
                                     .then(Commands.argument("z", DoubleArgumentType.doubleArg(-1, 1))
                                             .executes(StompAndClimbCustomCarryCommand::executeCommandWithArg)))));
+        });
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            dispatcher.register(Commands.literal("customcarry")
+                    .then(Commands.argument("place", StringArgumentType.string())
+                                            .executes(StompAndClimbCustomCarryCommand::executeCommandWithStringArg)));
         });
     }
 

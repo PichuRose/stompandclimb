@@ -57,28 +57,11 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
     boolean holdOutHand = true;
 
     @Override
-    public void stompandclimb_updateCustomCarryCache(double x, double y, double z) {
+    public void stompandclimb_updateCustomCarryCache(double x, double y, double z, boolean holdOutHand) {
         forwardBackOffset = x;
         upDownOffset = y;
         leftRightOffset = z;
-    }
-
-    @Override
-    public void stompandclimb_updateCustomCarryCache(String string) {
-        switch(string){
-            case "hand":
-                holdOutHand = true;
-                forwardBackOffset = 0.5;
-                upDownOffset = -1;
-                leftRightOffset = -0.5;
-                break;
-            case "head":
-                holdOutHand = false;
-                forwardBackOffset = 0;
-                upDownOffset = -0.25;
-                leftRightOffset = 0;
-                break;
-        }
+        this.holdOutHand = holdOutHand;
     }
 
 

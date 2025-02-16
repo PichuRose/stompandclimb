@@ -22,6 +22,12 @@ repositories {
         name = "cursemaven"
         url = "https://www.cursemaven.com"
     }
+    repositories {
+        maven {
+            name = 'ParchmentMC'
+            url = 'https://maven.parchmentmc.org'
+        }
+    }
     // Add repositories to retrieve artifacts from in here.
     // You should only use this when depending on other mods because
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
@@ -32,10 +38,14 @@ repositories {
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-1.20.1:2023.09.03@zip")
+    }
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "curse.maven:pehkui-319596:4641062"
     modImplementation 'com.github.Virtuoel:KanosConfig:0.4.1'
+    modImplementation "curse.maven:female-gender-456319:4600149"
 
 
     // Fabric API. This is technically optional, but you probably want it anyway.

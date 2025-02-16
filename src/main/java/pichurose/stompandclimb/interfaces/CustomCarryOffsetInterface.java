@@ -4,6 +4,5 @@ public interface CustomCarryOffsetInterface {
 
     //void stompandclimb_updateCache(Vec3d vec);
 
-    void stompandclimb_updateCustomCarryCache(double x, double y, double z);
-    void stompandclimb_updateCustomCarryCache(String string);
+    void stompandclimb_updateCustomCarryCache(double x, double y, double z, boolean holdOutHand);
 }

@@ -14,6 +14,8 @@
   "item.stompandclimb.spawner_ring": "Ring of the Insect (1/16x)",
   "item.stompandclimb.copper_ring": "Ring of Shrinking",
   "item.stompandclimb.rusted_ring": "Cursed Ring of Shrinking",
+  "item.stompandclimb.copper_ring_red": "Ring of Growing",
+  "item.stompandclimb.rusted_ring_red": "Cursed Ring of Growing",
   "item.stompandclimb.netherite_collar": "Colossus Collar (16x)",
   "item.stompandclimb.amethyst_collar": "Titan Collar (8x)",
   "item.stompandclimb.diamond_collar": "Huge Collar (4x)",
@@ -25,6 +27,8 @@
   "item.stompandclimb.spawner_collar": "Insect Collar (1/16x)",
   "item.stompandclimb.copper_collar": "Collar of Shrinking",
   "item.stompandclimb.rusted_collar": "Cursed Collar of Shrinking",
+  "item.stompandclimb.copper_collar_red": "Collar of Growing",
+  "item.stompandclimb.rusted_collar_red": "Cursed Collar of Growing",
   "item.stompandclimb.dini": "Dini",
   "item.stompandclimb.golden_dini": "Golden Dini",
   "item.stompandclimb.funny_milk_grow": "Suspicious Milk",
@@ -39,6 +43,7 @@
   "effect.stompandclimb.shrink_effect": "Shrink",
   "effect.stompandclimb.ring_cooldown": "Ring Cooldown",
   "effect.stompandclimb.curse_of_shrinking": "Cursed to Shrink",
+  "effect.stompandclimb.curse_of_growing": "Cursed to Grow",
 
 
   "item.minecraft.potion.effect.shrink_potion": "Potion of Shrinking",

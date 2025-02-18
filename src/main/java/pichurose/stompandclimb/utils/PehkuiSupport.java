@@ -17,7 +17,6 @@ public class PehkuiSupport {
 
     public static void setup() {
         //Loggers.SAC_LOGGER.info("Pehkui detected; enabling support");
-
         ScaleModifier modifier = new ScaleModifier() {
             @Override
             public float modifyScale(ScaleData scaleData, float modifiedScale, float delta) {

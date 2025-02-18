@@ -8,22 +8,11 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ResizingUtils {
-    private static final UUID uuidHeight = UUID.fromString("5440b01a-974f-4495-bb9a-c7c87424bca4");
-    private static final UUID uuidWidth = UUID.fromString("3949d2ed-b6cc-4330-9c13-98777f48ea51");
-    private static final float MIN_SIZE = 0.00390625f;
-    private static final float MAX_SIZE = 8;
-    //private static final double DOWNSCALE_RATE = 0.5;
-    //private static final double UPSCALE_RATE = 0.5;
 
     public static void resize(Entity entity, float mult) {
         if (entity == null) return;
         float newSize = getSize(entity) * mult;
-        if(newSize < MIN_SIZE){
-            newSize = MIN_SIZE;
-        }
-        if(newSize > MAX_SIZE){
-            newSize = MAX_SIZE;
-        }
+
 
 
         PehkuiSupport.SACScaleType.get().getScaleData(entity).setScaleTickDelay(200);
@@ -33,16 +22,28 @@ public class ResizingUtils {
     public static void resizeInstant(Entity entity, float mult) {
         if (entity == null) return;
         float newSize = getSize(entity) * mult;
-        if(newSize < MIN_SIZE){
-            newSize = MIN_SIZE;
-        }
-        if(newSize > MAX_SIZE){
-            newSize = MAX_SIZE;
-        }
 
 
 
         PehkuiSupport.SACScaleType.get().getScaleData(entity).setScale(newSize);
+    }
+
+    public static void resizeOneSecond(Entity entity, float mult){
+        if (entity == null) return;
+        float entitySize = getSize(entity);
+        if(entitySize > 1024 || entitySize < .001){
+            return;
+        }
+        float newSize = getSize(entity) * mult;
+        if(newSize > 1024f){
+            newSize = 1024f;
+        }
+        if(newSize < .001){
+            newSize = .001f;
+        }
+
+        PehkuiSupport.SACScaleType.get().getScaleData(entity).setScaleTickDelay(20);
+        PehkuiSupport.SACScaleType.get().getScaleData(entity).setTargetScale(newSize);
     }
 
 
@@ -54,12 +55,6 @@ public class ResizingUtils {
         }
         else{
             float newSize = size;
-            if(newSize < MIN_SIZE){
-                newSize = MIN_SIZE;
-            }
-            if(newSize > MAX_SIZE){
-                newSize = MAX_SIZE;
-            }
             PehkuiSupport.SACScaleType.get().getScaleData(entity).setScale(newSize);
         }
 

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GGG",
+    "GWG",
+    "GAG"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:redstone"
+    },
+    "G": {
+      "item": "minecraft:copper_ingot"
+    },
+    "W": {
+      "item": "minecraft:honeycomb"
+    }
+  },
+  "result": {
+    "item": "stompandclimb:copper_collar_red",
+    "count": 1
+  }
+}

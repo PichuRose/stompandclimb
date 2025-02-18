@@ -28,17 +28,14 @@ public class ShrinkEffect extends MobEffect {
 
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
-        if(entity.level().isClientSide()){
-            return;
-        }
         if(amplifier>10){
             amplifier = 10;
         }
-        int ticksPerGrow = 200 - (amplifier*20);
+        int ticksPerGrow = 40;
 
         if(tick >= ticksPerGrow){
             tick = 0;
-            ResizingUtils.resize(entity,.99f-(.01f*amplifier));
+            ResizingUtils.resizeOneSecond(entity,.99f-(.01f*amplifier));
         }
         else{
             tick++;

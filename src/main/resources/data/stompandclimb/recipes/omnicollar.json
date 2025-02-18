@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "stompandclimb:amethyst_collar"
+    },
+    {
+      "item": "stompandclimb:diamond_collar"
+    },
+    {
+      "item": "stompandclimb:emerald_collar"
+    },
+    {
+      "item": "stompandclimb:netherbrick_collar"
+    },
+    {
+      "item": "stompandclimb:netherite_collar"
+    },
+    {
+      "item": "stompandclimb:quartz_collar"
+    },
+    {
+      "item": "stompandclimb:redstone_collar"
+    },
+    {
+      "item": "stompandclimb:sea_collar"
+    },
+    {
+      "item": "stompandclimb:spawner_collar"
+    }
+  ],
+  "result": {
+    "item": "stompandclimb:omnicollar",
+    "count": 1
+  }
+}

@@ -1,6 +1,7 @@
 package pichurose.stompandclimb;
 
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
@@ -15,10 +16,8 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.Commands;
-import net.minecraft.core.DefaultedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -32,7 +31,9 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import pichurose.stompandclimb.commands.OmniSizeSetCommand;
 import pichurose.stompandclimb.commands.StompAndClimbCustomCarryCommand;
+import pichurose.stompandclimb.effects.CurseOfGrowingEffect;
 import pichurose.stompandclimb.effects.CurseOfShrinkingEffect;
 import pichurose.stompandclimb.effects.GrowEffect;
 import pichurose.stompandclimb.effects.ShrinkEffect;
@@ -44,6 +45,7 @@ import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.PehkuiSupport;
 
 public class StompAndClimb implements ModInitializer {
+
     public static final String MODID = "stompandclimb";
 
     public static final Item HARD_HAT = registerItem("hard_hat", new ArmorItem(new HardHatMaterial(), ArmorItem.Type.HELMET, new Item.Properties()));
@@ -59,8 +61,6 @@ public class StompAndClimb implements ModInitializer {
     public static final Item SEA_RING = registerItem("sea_ring", new RingItem(new Item.Properties(), .25f));
     public static final Item REDSTONE_RING = registerItem("redstone_ring", new RingItem(new Item.Properties(), .125f));
     public static final Item SPAWNER_RING = registerItem("spawner_ring", new RingItem(new Item.Properties(), .0625f));
-    public static final Item COPPER_RING = registerItem("copper_ring", new CopperRingItem(new Item.Properties()));
-    public static final Item RUSTED_RING = registerItem("rusted_ring", new RustedCopperRingItem(new Item.Properties()));
 
     public static final Item NETHERITE_COLLAR = registerItem("netherite_collar", new CollarItem(new Item.Properties(), 16));
     public static final Item AMETHYST_COLLAR = registerItem("amethyst_collar", new CollarItem(new Item.Properties(), 8));
@@ -71,16 +71,26 @@ public class StompAndClimb implements ModInitializer {
     public static final Item SEA_COLLAR = registerItem("sea_collar", new CollarItem(new Item.Properties(), .25f));
     public static final Item REDSTONE_COLLAR = registerItem("redstone_collar", new CollarItem(new Item.Properties(), .125f));
     public static final Item SPAWNER_COLLAR = registerItem("spawner_collar", new CollarItem(new Item.Properties(), .0625f));
-    public static final Item COPPER_COLLAR = registerItem("copper_collar", new CopperCollarItem(new Item.Properties()));
-    public static final Item RUSTED_COLLAR = registerItem("rusted_collar", new RustedCopperCollarItem(new Item.Properties()));
+
+
+    public static final Item SHRINKING_RING = registerItem("copper_ring", new ShrinkingRingItem(new Item.Properties()));
+    public static final Item RUSTED_SHRINKING_RING = registerItem("rusted_ring", new RustedShrinkingRingItem(new Item.Properties()));
+    public static final Item SHRINKING_COLLAR = registerItem("copper_collar", new ShrinkingCollarItem(new Item.Properties()));
+    public static final Item RUSTED_SHRINKING_COLLAR = registerItem("rusted_collar", new RustedShrinkingCollarItem(new Item.Properties()));
+
+    public static final Item GROWING_RING = registerItem("copper_ring_red", new GrowingRingItem(new Item.Properties()));
+    public static final Item RUSTED_GROWING_RING = registerItem("rusted_ring_red", new RustedGrowingRingItem(new Item.Properties()));
+    public static final Item GROWING_COLLAR = registerItem("copper_collar_red", new GrowingCollarItem(new Item.Properties()));
+    public static final Item RUSTED_GROWING_COLLAR = registerItem("rusted_collar_red", new RustedGrowingCollarItem(new Item.Properties()));
 
     public static final Item OMNIRING = registerItem("omniring", new OmniRingItem(new Item.Properties()));
     public static final Item OMNICOLLAR = registerItem("omnicollar", new OmniCollarItem(new Item.Properties()));
 
 
+    public static final MobEffect CURSE_OF_GROWING = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "curse_of_growing"), new CurseOfGrowingEffect());
     public static final MobEffect CURSE_OF_SHRINKING = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "curse_of_shrinking"), new CurseOfShrinkingEffect());
     public static final MobEffect GROW_EFFECT = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "grow_effect"), new GrowEffect());
-    public static final MobEffect SHRINK_EFFECT = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "shrink_effect"), new CurseOfShrinkingEffect());
+    public static final MobEffect SHRINK_EFFECT = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "shrink_effect"), new ShrinkEffect());
 
     private static final CreativeModeTab ITEM_GROUP = Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, new ResourceLocation(MODID, "ringsandgear"), FabricItemGroup.builder()
             .icon(() -> new ItemStack(SPAWNER_RING))
@@ -89,6 +99,8 @@ public class StompAndClimb implements ModInitializer {
                 entries.accept(HARD_HAT);
                 entries.accept(SOFT_SOCKS);
                 entries.accept(HOVER_BOOTS);
+
+                entries.accept(OMNIRING);
                 entries.accept(NETHERITE_RING);
                 entries.accept(AMETHYST_RING);
                 entries.accept(DIAMOND_RING);
@@ -98,8 +110,8 @@ public class StompAndClimb implements ModInitializer {
                 entries.accept(SEA_RING);
                 entries.accept(REDSTONE_RING);
                 entries.accept(SPAWNER_RING);
-                entries.accept(COPPER_RING);
-                entries.accept(RUSTED_RING);
+
+                entries.accept(OMNICOLLAR);
                 entries.accept(NETHERITE_COLLAR);
                 entries.accept(AMETHYST_COLLAR);
                 entries.accept(DIAMOND_COLLAR);
@@ -109,10 +121,17 @@ public class StompAndClimb implements ModInitializer {
                 entries.accept(SEA_COLLAR);
                 entries.accept(REDSTONE_COLLAR);
                 entries.accept(SPAWNER_COLLAR);
-                entries.accept(COPPER_COLLAR);
-                entries.accept(RUSTED_COLLAR);
-                entries.accept(OMNIRING);
-                entries.accept(OMNICOLLAR);
+
+
+                entries.accept(GROWING_RING);
+                entries.accept(GROWING_COLLAR);
+                entries.accept(RUSTED_GROWING_RING);
+                entries.accept(RUSTED_GROWING_COLLAR);
+
+                entries.accept(SHRINKING_RING);
+                entries.accept(SHRINKING_COLLAR);
+                entries.accept(RUSTED_SHRINKING_RING);
+                entries.accept(RUSTED_SHRINKING_COLLAR);
             })
             .build());
 
@@ -238,6 +257,11 @@ public class StompAndClimb implements ModInitializer {
             dispatcher.register(Commands.literal("customcarry")
                     .then(Commands.argument("place", StringArgumentType.string())
                                             .executes(StompAndClimbCustomCarryCommand::executeCommandWithStringArg)));
+        });
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            dispatcher.register(Commands.literal("omnisize")
+                    .then(Commands.argument("size", FloatArgumentType.floatArg(0.001f, 1024))
+                            .executes(OmniSizeSetCommand::executeCommandWithArg)));
         });
     }
 

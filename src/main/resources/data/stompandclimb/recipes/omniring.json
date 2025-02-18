@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "stompandclimb:amethyst_ring"
+    },
+    {
+      "item": "stompandclimb:diamond_ring"
+    },
+    {
+      "item": "stompandclimb:emerald_ring"
+    },
+    {
+      "item": "stompandclimb:netherbrick_ring"
+    },
+    {
+      "item": "stompandclimb:netherite_ring"
+    },
+    {
+      "item": "stompandclimb:quartz_ring"
+    },
+    {
+      "item": "stompandclimb:redstone_ring"
+    },
+    {
+      "item": "stompandclimb:sea_ring"
+    },
+    {
+      "item": "stompandclimb:spawner_ring"
+    }
+  ],
+  "result": {
+    "item": "stompandclimb:omniring",
+    "count": 1
+  }
+}

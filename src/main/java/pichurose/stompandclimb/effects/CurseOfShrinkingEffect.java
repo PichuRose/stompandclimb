@@ -33,7 +33,7 @@ public class CurseOfShrinkingEffect extends MobEffect {
         Random r = new Random();
         if(r.nextFloat() >= 0.9999){
             float mult = r.nextFloat(.1f,1f);
-            ResizingUtils.resize(entity, mult);
+            ResizingUtils.resizeOneSecond(entity, mult);
         }
     }
 

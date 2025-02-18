@@ -27,6 +27,7 @@
     "fabric": "*",
     "minecraft": "${minecraft_version}",
     "pehkui": "*",
+    "hypercollider": "*",
     "fabric-key-binding-api-v1": "*"
   }
 }

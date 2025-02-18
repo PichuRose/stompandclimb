@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.6-SNAPSHOT'
+    id 'fabric-loom' version '1.9.2'
     id 'maven-publish'
 }
 
@@ -14,6 +14,7 @@ repositories {
     maven {
         url = "https://api.modrinth.com/maven"
     }
+    flatDir name: 'libs', dirs: "$projectDir/libs"
     maven {
         name 'jitpack'
         url 'https://jitpack.io'
@@ -22,11 +23,9 @@ repositories {
         name = "cursemaven"
         url = "https://www.cursemaven.com"
     }
-    repositories {
-        maven {
-            name = 'ParchmentMC'
-            url = 'https://maven.parchmentmc.org'
-        }
+    maven {
+        name = 'ParchmentMC'
+        url = 'https://maven.parchmentmc.org'
     }
     // Add repositories to retrieve artifacts from in here.
     // You should only use this when depending on other mods because
@@ -46,6 +45,11 @@ dependencies {
     modImplementation "curse.maven:pehkui-319596:4641062"
     modImplementation 'com.github.Virtuoel:KanosConfig:0.4.1'
     modImplementation "curse.maven:female-gender-456319:4600149"
+    modImplementation "curse.maven:sodium-394468:5425359"
+    modImplementation "curse.maven:jei-238222:6075246"
+
+    include "a:HyperCollider:1.0-SNAPSHOT"
+    modImplementation "a:HyperCollider:1.0-SNAPSHOT"
 
 
     // Fabric API. This is technically optional, but you probably want it anyway.

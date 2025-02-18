@@ -8,34 +8,23 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import pichurose.stompandclimb.utils.ResizingUtils;
 
-public class OmniCollarItem extends Item {
-    private float SIZE = 1;
+public class ShrinkingCollarItem extends Item {
 
-    public OmniCollarItem(Item.Properties settings) {
+    public ShrinkingCollarItem(Properties settings) {
         super(settings);
     }
 
-    public void setSIZE(float SIZE) {
-        this.SIZE = SIZE;
-    }
+
 
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player user, LivingEntity entity, InteractionHand hand) {
         if(user.getCooldowns().isOnCooldown(this)){
             return super.interactLivingEntity(stack, user, entity, hand);
         }
-
-        if(ResizingUtils.getSize(entity) != SIZE){
-            ResizingUtils.setSize(entity, SIZE);
-            if(entity instanceof Player){
-                user.getCooldowns().addCooldown(this, 200);
-            }
-            else{
-                user.getCooldowns().addCooldown(this, 20);
-            }
-        }
-
-
+        ResizingUtils.resizeInstant(entity, 0.91700404320467123174354159479414f);
+        user.getCooldowns().addCooldown(this, 20);
         return super.interactLivingEntity(stack, user, entity, hand);
     }
+
+
 }

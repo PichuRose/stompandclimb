@@ -12,4 +12,5 @@ import net.minecraft.world.item.ItemStack;
 public class StompAndClimbNetworkingConstants {
     public static final ResourceLocation PICKUP_TELEPORT_PACKET = ResourceLocation.of("stompandclimb", 'a');
     public static final ResourceLocation CUSTOM_CARRY_POS_CLIENT_PACKET = ResourceLocation.of("stompandclimb", 'b');
+
 }

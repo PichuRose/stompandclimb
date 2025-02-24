@@ -28,6 +28,7 @@
     "minecraft": "${minecraft_version}",
     "pehkui": "*",
     "hypercollider": "*",
-    "fabric-key-binding-api-v1": "*"
+    "fabric-key-binding-api-v1": "*",
+    "flan": ">=1.11.5"
   }
 }

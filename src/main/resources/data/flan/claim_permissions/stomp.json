@@ -1,0 +1,8 @@
+{
+  "default_value": true,
+  "global": true,
+  "gui_item": {
+    "id": "stompandclimb:soft_socks"
+  },
+  "order": 50
+}

@@ -27,6 +27,11 @@ repositories {
         name = 'ParchmentMC'
         url = 'https://maven.parchmentmc.org'
     }
+    maven {
+        name = "Flemmli97"
+        url "https://gitlab.com/api/v4/projects/21830712/packages/maven"
+    }
+
     // Add repositories to retrieve artifacts from in here.
     // You should only use this when depending on other mods because
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
@@ -47,6 +52,17 @@ dependencies {
     modImplementation "curse.maven:female-gender-456319:4600149"
     modImplementation "curse.maven:sodium-394468:5425359"
     modImplementation "curse.maven:jei-238222:6075246"
+    modImplementation "curse.maven:flan-404578:6221477"
+
+    modImplementation include("io.github.flemmli97:lingua_bib:${minecraft_version}-${lingua_version}-${mod_loader}")
+
+    //modCompileOnly("io.github.flemmli97:flan:${minecraft_version}-${flan_version}-${mod_loader}:api") {
+    //    transitive = false //Remove this if you want to have all those optional dependencies
+    //}
+    //modRuntime("io.github.flemmli97:flan:${minecraft_version}-${flan_version}-${mod_loader}") {
+    //    transitive = false //Remove this if you want to have all those optional dependencies
+    //}
+
 
     include "a:HyperCollider:1.0-SNAPSHOT"
     modImplementation "a:HyperCollider:1.0-SNAPSHOT"

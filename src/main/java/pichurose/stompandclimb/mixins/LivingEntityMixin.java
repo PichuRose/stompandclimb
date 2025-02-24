@@ -1,6 +1,12 @@
 package pichurose.stompandclimb.mixins;
 
+import io.github.flemmli97.flan.api.ClaimHandler;
+import io.github.flemmli97.flan.claim.Claim;
+import io.github.flemmli97.flan.claim.ClaimStorage;
+import io.github.flemmli97.flan.event.EntityInteractEvents;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -45,6 +51,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
     @Unique
     public Vec3 playerVec = Vec3.ZERO;
 
+    @Shadow protected abstract void actuallyHurt(DamageSource damageSource, float damageAmount);
 
 
     @Override
@@ -139,9 +146,50 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
                         }
                     }
                     //StompAndClimbForge.log("stomp called");
-                    DamageSource damageSource = ((LivingEntity) (Object) this).damageSources().genericKill();
+                    DamageSource damageSource;
+                    if(((Object) this) instanceof Player player) {
+                        damageSource = ((LivingEntity) (Object) this).damageSources().playerAttack(player);
+
+                        if (!ClaimHandler.canInteract((ServerPlayer) player, entity.blockPosition(), ResourceLocation.of("flan:stomp", ':'))) {
+                            ci.cancel();
+                            return;
+                        }
+                    }
+                    else{
+                        damageSource = ((LivingEntity) (Object) this).damageSources().mobAttack((LivingEntity)entity);
+                        boolean stompAllowedInFlan = false;
+                        Claim claim;
+                        try{
+                            claim = ClaimStorage.get(entity.getServer().getLevel(entity.level().dimension())).getClaimAt(entity.blockPosition());
+                        } catch(NullPointerException e){
+                            claim = null;
+                        }
+
+                        if(claim != null){
+                            ResourceLocation perm = new ResourceLocation("flan","stomp");
+
+                            if (claim.parentClaim() == null) {
+                                stompAllowedInFlan = claim.permEnabled(perm) == 1;
+                            } else if (claim.permEnabled(perm) == -1) {
+                                stompAllowedInFlan = claim.parentClaim().permEnabled(perm) == 1;
+                            } else {
+                                stompAllowedInFlan = claim.permEnabled(perm) == 1;
+                            }
+
+                            if(!stompAllowedInFlan){
+                                ci.cancel();
+                                return;
+                            }
+                        }
+                    }
+
+                    //DamageSource damageSource = ((LivingEntity) (Object) this).damageSources().cramming();
+                    //((LivingEntity) (Object) this).doHurtTarget(entity);
                     //DamageSource damageSource = DamageSource.GENERIC;
 
+                    //if(EntityInteractEvents.preventDamage(entity, damageSource)){
+
+                    damageSource = ((LivingEntity) (Object) this).damageSources().generic();
                     if (hardHat && softSocks) {
                         entity.hurt(damageSource, 0);
                     } else if (hardHat) {

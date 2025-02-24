@@ -1,0 +1,4 @@
+{
+  "flan.permission.flan:stomp" : "Stomp & Climb Stomp",
+  "flan.permission.flan:stomp.desc" : "Allow stomping in the claim(global)"
+}

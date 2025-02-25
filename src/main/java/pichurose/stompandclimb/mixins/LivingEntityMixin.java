@@ -70,8 +70,13 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         }
         if (((Entity)(Object) this).getPassengers().contains(entity)) {
             //StompAndClimbForge.log("push called by passenger");
+            ci.cancel();
             return;
         }
+        /*if (!ClaimHandler.canInteract(null, entity.blockPosition(), ResourceLocation.of("flan:stomp", ':'))) {
+            ci.cancel();
+            return;
+        }*/
 
         boolean softSocks = false;
         boolean hardHat = false;
@@ -147,35 +152,26 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
                     }
                     //StompAndClimbForge.log("stomp called");
                     DamageSource damageSource;
-                    if(((Object) this) instanceof Player player) {
-                        damageSource = ((LivingEntity) (Object) this).damageSources().playerAttack(player);
 
-                        if (!ClaimHandler.canInteract((ServerPlayer) player, entity.blockPosition(), ResourceLocation.of("flan:stomp", ':'))) {
+                    ResourceLocation perm = ResourceLocation.of(entity instanceof Player ? "flan:stompplayer":"flan:stompmob", ':');
+
+                    if(((Object) this) instanceof Player player) {
+                        if (!ClaimHandler.canInteract((ServerPlayer) player, entity.blockPosition(), perm)) {
                             ci.cancel();
                             return;
                         }
                     }
                     else{
-                        damageSource = ((LivingEntity) (Object) this).damageSources().mobAttack((LivingEntity)entity);
                         boolean stompAllowedInFlan = false;
                         Claim claim;
-                        try{
-                            claim = ClaimStorage.get(entity.getServer().getLevel(entity.level().dimension())).getClaimAt(entity.blockPosition());
-                        } catch(NullPointerException e){
-                            claim = null;
-                        }
+                        try{ claim = ClaimStorage.get(entity.getServer().getLevel(entity.level().dimension())).getClaimAt(entity.blockPosition());}
+                        catch(NullPointerException e){ claim = null; }
 
                         if(claim != null){
-                            ResourceLocation perm = new ResourceLocation("flan","stomp");
 
-                            if (claim.parentClaim() == null) {
-                                stompAllowedInFlan = claim.permEnabled(perm) == 1;
-                            } else if (claim.permEnabled(perm) == -1) {
-                                stompAllowedInFlan = claim.parentClaim().permEnabled(perm) == 1;
-                            } else {
-                                stompAllowedInFlan = claim.permEnabled(perm) == 1;
-                            }
-
+                            if (claim.parentClaim() == null)        stompAllowedInFlan = claim.permEnabled(perm) == 1;
+                            else if (claim.permEnabled(perm) == -1) stompAllowedInFlan = claim.parentClaim().permEnabled(perm) == 1;
+                            else                                    stompAllowedInFlan = claim.permEnabled(perm) == 1;
                             if(!stompAllowedInFlan){
                                 ci.cancel();
                                 return;
@@ -247,6 +243,9 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
 
     @Inject(at = @At("TAIL"), method = "onClimbable", cancellable = true)
     public void postCheckClimbable(CallbackInfoReturnable<Boolean> cir) {
+        //if(((Object) this) instanceof ServerPlayer user){
+         //   if (!ClaimHandler.canInteract(user, user.blockPosition(), ResourceLocation.of("flan:climb", ':'))) { cir.setReturnValue(false); return; }
+        //}
         if (((Object) this) instanceof Player) {
             for (ItemStack armorItem : ((Player) ((Object) this)).getArmorSlots()) {
                 if (armorItem.isEmpty())

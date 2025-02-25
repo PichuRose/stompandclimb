@@ -1,0 +1,8 @@
+{
+  "default_value": true,
+  "global": true,
+  "gui_item": {
+    "id": "minecraft:slime_ball"
+  },
+  "order": 53
+}

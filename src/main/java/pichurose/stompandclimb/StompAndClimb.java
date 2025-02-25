@@ -43,6 +43,7 @@ import pichurose.stompandclimb.materials.HardHatMaterial;
 import pichurose.stompandclimb.materials.HoverBootsMaterial;
 import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.PehkuiSupport;
+import pichurose.stompandclimb.utils.ResizingUtils;
 
 public class StompAndClimb implements ModInitializer {
 
@@ -230,7 +231,7 @@ public class StompAndClimb implements ModInitializer {
             double x = buf.readDouble();
             double y = buf.readDouble();
             double z = buf.readDouble();
-            Entity target = targetId != -1 ? player.getServer().overworld().getEntity(targetId) : null;
+            Entity target = targetId != -1 ? player.getServer().getLevel(player.level().dimension()).getEntity(targetId) : null;
             Vec3 hitPos = new Vec3(x, y, z);
             server.execute(() -> handleKeyPressServer(player, hitResultType, target, smallEnough, hitPos));
         });
@@ -244,6 +245,36 @@ public class StompAndClimb implements ModInitializer {
                 CustomCarryOffsetInterface customCarryOffsetInterface = (CustomCarryOffsetInterface) (client.player);
                 customCarryOffsetInterface.stompandclimb_updateCustomCarryCache(x, y, z, holdOutHand);
             });
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(StompAndClimbNetworkingConstants.SIZE_CHANGE_CLIENT_PACKET, (client, handler, buf, responseSender) -> {
+            int targetId = buf.readInt();
+            float size = buf.readFloat();
+
+            if (client.player != null) {
+                //final Entity target = targetId != -1 ? client.player.getServer().getLevel(client.player.level().dimension()).getEntity(targetId) : null;
+                final Entity target = targetId != -1 ? Minecraft.getInstance().getSingleplayerServer().getLevel(client.player.level().dimension()).getEntity(targetId) : null;
+                client.execute(() -> {
+                    if(target != null){
+                        ResizingUtils.setSize(target, size);
+                    }
+                });
+            }
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(StompAndClimbNetworkingConstants.SIZE_RESIZE_CLIENT_PACKET, (client, handler, buf, responseSender) -> {
+            int targetId = buf.readInt();
+            float size = buf.readFloat();
+
+            if (client.player != null) {
+                //final Entity target = targetId != -1 ? client.player.getServer().getLevel(client.player.level().dimension()).getEntity(targetId) : null;
+                final Entity target = targetId != -1 ? Minecraft.getInstance().getSingleplayerServer().getLevel(client.player.level().dimension()).getEntity(targetId) : null;
+                client.execute(() -> {
+                    if(target != null){
+                        ResizingUtils.resizeInstant(target, size);
+                    }
+                });
+            }
         });
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {

@@ -1,0 +1,8 @@
+{
+  "default_value": true,
+  "global": true,
+  "gui_item": {
+    "id": "stompandclimb:spawner_ring"
+  },
+  "order": 53
+}

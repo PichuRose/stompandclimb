@@ -64,8 +64,8 @@ dependencies {
     //}
 
 
-    include "a:HyperCollider:1.0-SNAPSHOT"
-    modImplementation "a:HyperCollider:1.0-SNAPSHOT"
+    include "a:HyperCollider:1.1"
+    modImplementation "a:HyperCollider:1.1"
 
 
     // Fabric API. This is technically optional, but you probably want it anyway.

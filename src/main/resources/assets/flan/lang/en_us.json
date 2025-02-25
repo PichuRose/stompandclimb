@@ -1,4 +1,8 @@
 {
-  "flan.permission.flan:stomp" : "Stomp & Climb Stomp",
-  "flan.permission.flan:stomp.desc" : "Allow stomping in the claim(global)"
+  "flan.permission.flan:stompmob" : "Stomp Mob",
+  "flan.permission.flan:stompmob.desc" : "Allow stomping mobs in the claim(global)",
+  "flan.permission.flan:stompplayer" : "Stomp Player",
+  "flan.permission.flan:stompplayer.desc" : "Allow stomping players in the claim(global)",
+  "flan.permission.flan:sizechanging" : "Size Changing(TRADE PERM ALSO AFFECTS COLLARS)",
+  "flan.permission.flan:sizechanging.desc" : "Allow changing size in the claim(global)"
 }

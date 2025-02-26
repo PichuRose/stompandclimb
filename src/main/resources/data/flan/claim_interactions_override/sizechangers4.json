@@ -1,0 +1,117 @@
+{
+  "type": "flan:entity_attack",
+  "values": [
+    {
+      "entry": "stompandclimb:amethyst_collar",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:amethyst_ring",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:copper_collar",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:copper_collar_red",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:copper_ring",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:copper_ring_red",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:diamond_collar",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:diamond_ring",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:emerald_collar",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:emerald_ring",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:netherbrick_collar",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:netherbrick_ring",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:netherite_collar",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:netherite_ring",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:omnicollar",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:omniring",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:quartz_collar",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:quartz_ring",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:redstone_collar",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:redstone_ring",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:rusted_collar",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:rusted_collar_red",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:rusted_ring",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:rusted_ring_red",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:sea_collar",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:sea_ring",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:spawner_collar",
+      "permission": "flan:sizechanging"
+    },
+    {
+      "entry": "stompandclimb:spawner_ring",
+      "permission": "flan:sizechanging"
+    }
+  ]
+}

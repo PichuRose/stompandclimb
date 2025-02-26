@@ -6,6 +6,7 @@ import io.github.flemmli97.flan.claim.ClaimStorage;
 import io.github.flemmli97.flan.event.EntityInteractEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -59,7 +60,8 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         playerVec = vec;
     }
 
-
+    @Unique
+    public boolean isAllowedToClimb = false;
 
 
     @Inject(method = "doPush", at = @At("HEAD"), cancellable = true)
@@ -241,11 +243,28 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         ci.cancel();
     }
 
+    @Inject(method = "baseTick", at = @At("HEAD"))
+    void preBaseTick(CallbackInfo ci) {
+        if(!((Entity)(Object) this instanceof Player)) return;
+        if (!((Entity)(Object)this).level().isClientSide() && ((Entity)(Object)this).level() instanceof ServerLevel serverlevel){
+            ResourceLocation perm = ResourceLocation.of("flan:climbing",':');
+            Claim claim = ClaimStorage.get(serverlevel).getClaimAt(((Entity)(Object)this).blockPosition());
+            if(claim != null) {
+                int status = claim.permEnabled(perm);
+                if (status != 1 && claim.parentClaim() != null) status = claim.parentClaim().permEnabled(perm);
+                isAllowedToClimb = status == 1;
+            }
+        }
+    }
+
     @Inject(at = @At("TAIL"), method = "onClimbable", cancellable = true)
     public void postCheckClimbable(CallbackInfoReturnable<Boolean> cir) {
-        //if(((Object) this) instanceof ServerPlayer user){
-         //   if (!ClaimHandler.canInteract(user, user.blockPosition(), ResourceLocation.of("flan:climb", ':'))) { cir.setReturnValue(false); return; }
-        //}
+
+        if(!isAllowedToClimb) {
+            lastClimbablePos = Optional.empty();
+            cir.setReturnValue(false);
+            return;
+        }
         if (((Object) this) instanceof Player) {
             for (ItemStack armorItem : ((Player) ((Object) this)).getArmorSlots()) {
                 if (armorItem.isEmpty())

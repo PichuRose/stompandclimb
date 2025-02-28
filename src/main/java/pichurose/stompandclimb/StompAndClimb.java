@@ -1,5 +1,6 @@
 package pichurose.stompandclimb;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -37,6 +38,7 @@ import pichurose.stompandclimb.effects.CurseOfGrowingEffect;
 import pichurose.stompandclimb.effects.CurseOfShrinkingEffect;
 import pichurose.stompandclimb.effects.GrowEffect;
 import pichurose.stompandclimb.effects.ShrinkEffect;
+import pichurose.stompandclimb.interfaces.ClientLocationInterface;
 import pichurose.stompandclimb.interfaces.CustomCarryOffsetInterface;
 import pichurose.stompandclimb.items.*;
 import pichurose.stompandclimb.materials.HardHatMaterial;
@@ -272,6 +274,23 @@ public class StompAndClimb implements ModInitializer {
                 client.execute(() -> {
                     if(target != null){
                         ResizingUtils.resizeInstant(target, size);
+                    }
+                });
+            }
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(StompAndClimbNetworkingConstants.UPDATE_IS_ALLOWED_TO_CLIMB_CLIENT_PACKET, (client, handler, buf, responseSender) -> {
+            double l = buf.readDouble();
+            double m = buf.readDouble();
+            double n = buf.readDouble();
+            boolean isAllowedToClimb = buf.readBoolean();
+
+            if (client.player != null) {
+                //final Entity target = targetId != -1 ? client.player.getServer().getLevel(client.player.level().dimension()).getEntity(targetId) : null;
+                client.execute(() -> {
+                    if(client.player != null){
+                        ClientLocationInterface clientLocationInterface = (ClientLocationInterface)client.player;
+                        clientLocationInterface.stompandclimb_updateCache(new Vec3(l, m, n), isAllowedToClimb);
                     }
                 });
             }

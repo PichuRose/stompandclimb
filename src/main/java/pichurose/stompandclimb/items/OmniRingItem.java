@@ -29,7 +29,7 @@ public class OmniRingItem extends Item{
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
         if(world.isClientSide) { return super.use(world, user, hand); }
-        if (!ClaimHandler.canInteract((ServerPlayer) user, user.blockPosition(), ResourceLocation.of("flan:sizechanging", ':'))) { return super.use(world, user, hand); }
+        if (!ClaimHandler.canInteract((ServerPlayer) user, user.blockPosition(), ResourceLocation.of("stompandclimb:sizechanging", ':'))) { return super.use(world, user, hand); }
         if(user.getCooldowns().isOnCooldown(this)){
             return super.use(world, user, hand);
         }

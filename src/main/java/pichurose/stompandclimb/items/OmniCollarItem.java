@@ -29,7 +29,7 @@ public class OmniCollarItem extends Item {
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player user, LivingEntity entity, InteractionHand hand) {
         if(user.level().isClientSide) { return super.interactLivingEntity(stack, user, entity, hand); }
-        if (!ClaimHandler.canInteract((ServerPlayer) user, entity.blockPosition(), ResourceLocation.of("flan:sizechanging", ':'))) { return super.interactLivingEntity(stack, user, entity, hand); }
+        if (!ClaimHandler.canInteract((ServerPlayer) user, entity.blockPosition(), ResourceLocation.of("stompandclimb:sizechanging", ':'))) { return super.interactLivingEntity(stack, user, entity, hand); }
         if(user.getCooldowns().isOnCooldown(this)){
             return super.interactLivingEntity(stack, user, entity, hand);
         }

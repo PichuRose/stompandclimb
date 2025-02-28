@@ -129,5 +129,14 @@
   "item.minecraft.lingering_potion.effect.grow_potion_10": "Lingering Potion of Growth",
 
   "key.categories.stompandclimb": "Stomp and Climb",
-  "key.stompandclimb.pickupplacedown": "Pick Up/Place Down"
+  "key.stompandclimb.pickupplacedown": "Pick Up/Place Down",
+
+  "flan.permission.stompandclimb:stompmob" : "Stomp Mob",
+  "flan.permission.stompandclimb:stompmob.desc" : "Allow stomping mobs in the claim(global)",
+  "flan.permission.stompandclimb:stompplayer" : "Stomp Player",
+  "flan.permission.stompandclimb:stompplayer.desc" : "Allow stomping players in the claim(global)",
+  "flan.permission.stompandclimb:sizechanging" : "Size Changing(TRADE PERM ALSO AFFECTS COLLARS)",
+  "flan.permission.stompandclimb:sizechanging.desc" : "Allow changing size in the claim(global)",
+  "flan.permission.stompandclimb:climbing" : "Climbing",
+  "flan.permission.stompandclimb:climbing.desc" : "Allow climbing with sticky items in the claim(global)"
 }

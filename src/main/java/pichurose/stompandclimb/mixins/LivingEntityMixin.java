@@ -3,13 +3,10 @@ package pichurose.stompandclimb.mixins;
 import io.github.flemmli97.flan.api.ClaimHandler;
 import io.github.flemmli97.flan.claim.Claim;
 import io.github.flemmli97.flan.claim.ClaimStorage;
-import io.github.flemmli97.flan.event.EntityInteractEvents;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -20,12 +17,10 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -35,14 +30,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import pichurose.stompandclimb.StompAndClimb;
 import pichurose.stompandclimb.interfaces.ClientLocationInterface;
-import pichurose.stompandclimb.interfaces.CustomCarryOffsetInterface;
 import pichurose.stompandclimb.items.SoftSocksItem;
 import pichurose.stompandclimb.utils.ResizingUtils;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
+
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin implements ClientLocationInterface {
 
@@ -55,13 +47,24 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
     @Shadow protected abstract void actuallyHurt(DamageSource damageSource, float damageAmount);
 
 
+    @Shadow public abstract boolean onClimbable();
+
     @Override
-    public void stompandclimb_updateCache(Vec3 vec) {
+    public void stompandclimb_updateCache(Vec3 vec, boolean isAllowedToClimb) {
         playerVec = vec;
+        this.isAllowedToClimb = isAllowedToClimb;
     }
 
     @Unique
     public boolean isAllowedToClimb = false;
+
+    @Unique
+    public boolean didClimbLastOnServer = false;
+
+    //@Unique
+    //public String didClimbOutputLate = "";
+
+
 
 
     @Inject(method = "doPush", at = @At("HEAD"), cancellable = true)
@@ -155,7 +158,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
                     //StompAndClimbForge.log("stomp called");
                     DamageSource damageSource;
 
-                    ResourceLocation perm = ResourceLocation.of(entity instanceof Player ? "flan:stompplayer":"flan:stompmob", ':');
+                    ResourceLocation perm = ResourceLocation.of(entity instanceof Player ? "stompandclimb:stompplayer":"stompandclimb:stompmob", ':');
 
                     if(((Object) this) instanceof Player player) {
                         if (!ClaimHandler.canInteract((ServerPlayer) player, entity.blockPosition(), perm)) {
@@ -243,11 +246,11 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         ci.cancel();
     }
 
-    @Inject(method = "baseTick", at = @At("HEAD"))
+    /*@Inject(method = "baseTick", at = @At("HEAD"))
     void preBaseTick(CallbackInfo ci) {
         if(!((Entity)(Object) this instanceof Player)) return;
         if (!((Entity)(Object)this).level().isClientSide() && ((Entity)(Object)this).level() instanceof ServerLevel serverlevel){
-            ResourceLocation perm = ResourceLocation.of("flan:climbing",':');
+            ResourceLocation perm = ResourceLocation.of("stompandclimb:climbing",':');
             Claim claim = ClaimStorage.get(serverlevel).getClaimAt(((Entity)(Object)this).blockPosition());
             if(claim != null) {
                 int status = claim.permEnabled(perm);
@@ -255,16 +258,22 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
                 isAllowedToClimb = status == 1;
             }
         }
-    }
+    }*/
 
     @Inject(at = @At("TAIL"), method = "onClimbable", cancellable = true)
     public void postCheckClimbable(CallbackInfoReturnable<Boolean> cir) {
-
-        if(!isAllowedToClimb) {
-            lastClimbablePos = Optional.empty();
-            cir.setReturnValue(false);
+        if(!(((Object)this) instanceof Player)){
             return;
         }
+        boolean isClientSide = false;
+        if((((LivingEntity)(Object)this).getServer() == null)){
+            isClientSide = true;
+        }
+
+        if(!isAllowedToClimb){
+            return;
+        }
+
         if (((Object) this) instanceof Player) {
             for (ItemStack armorItem : ((Player) ((Object) this)).getArmorSlots()) {
                 if (armorItem.isEmpty())

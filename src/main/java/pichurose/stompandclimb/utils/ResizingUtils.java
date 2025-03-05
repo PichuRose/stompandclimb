@@ -4,11 +4,11 @@ package pichurose.stompandclimb.utils;
 import net.minecraft.world.entity.Entity;
 import virtuoel.pehkui.util.ScaleUtils;
 
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ResizingUtils {
 
+    @SuppressWarnings("unused")
     public static void resize(Entity entity, float mult) {
         if (entity == null) return;
         float newSize = getSize(entity) * mult;
@@ -31,15 +31,15 @@ public class ResizingUtils {
     public static void resizeOneSecond(Entity entity, float mult){
         if (entity == null) return;
         float entitySize = getSize(entity);
-        if(entitySize > 1024 || entitySize < .001){
+        if(entitySize > 1024 || entitySize < .0001){
             return;
         }
         float newSize = getSize(entity) * mult;
         if(newSize > 1024f){
             newSize = 1024f;
         }
-        if(newSize < .001){
-            newSize = .001f;
+        if(newSize < .0001){
+            newSize = .0001f;
         }
 
         PehkuiSupport.SACScaleType.get().getScaleData(entity).setScaleTickDelay(20);
@@ -54,8 +54,7 @@ public class ResizingUtils {
             PehkuiSupport.SACScaleType.get().getScaleData(entity).resetScale();
         }
         else{
-            float newSize = size;
-            PehkuiSupport.SACScaleType.get().getScaleData(entity).setScale(newSize);
+            PehkuiSupport.SACScaleType.get().getScaleData(entity).setScale(size);
         }
 
     }
@@ -70,6 +69,7 @@ public class ResizingUtils {
     public static float getActualSize(Entity entity) {
         if (entity == null) return 1;
         AtomicReference<Float> size = new AtomicReference<>(1f);
+        //noinspection UnstableApiUsage
         size.set(size.get() * ScaleUtils.getBoundingBoxHeightScale(entity));
         return size.get();
     }

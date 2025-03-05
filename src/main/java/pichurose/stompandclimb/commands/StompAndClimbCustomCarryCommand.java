@@ -1,34 +1,23 @@
 package pichurose.stompandclimb.commands;
 
 import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import oshi.util.tuples.Quartet;
-import oshi.util.tuples.Triplet;
-import pichurose.stompandclimb.interfaces.ClientLocationInterface;
 import pichurose.stompandclimb.interfaces.CustomCarryOffsetInterface;
 import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 
-import java.util.LinkedList;
+import java.util.Objects;
 
 public class StompAndClimbCustomCarryCommand {
 
-    private static double[][] places = {
+    private static final double[][] places = {
         {0,     0,      0},
         {0.5,   -1,     -0.5},
         {0.5,   -1,     0.5},
@@ -40,8 +29,6 @@ public class StompAndClimbCustomCarryCommand {
     }
 
     public static int executeCommandWithArg(CommandContext<CommandSourceStack> context) {
-        //int value = IntegerArgumentType.getInteger(context, "value");
-        //context.getSource().sendFeedback(() -> Text.literal("Called /command_with_arg with value = %s".formatted(value)), false);
         double x = DoubleArgumentType.getDouble(context, "x");
         double y = DoubleArgumentType.getDouble(context, "y");
         double z = DoubleArgumentType.getDouble(context, "z");
@@ -57,12 +44,12 @@ public class StompAndClimbCustomCarryCommand {
             case "head", "hat", "hair", "default", "above" -> 0;
             case "right_hand", "right", "righty" -> 1;
             case "left_hand", "left", "lefty" -> 2;
-            case "hand", "hands", "arm", "wrist", "uppies", "pickup", "grab", "yoink", "mine", "palm" -> getDominantHand(context.getSource().getPlayer());
+            case "hand", "hands", "arm", "wrist", "uppies", "pickup", "grab", "yoink", "mine", "palm" -> getDominantHand(Objects.requireNonNull(context.getSource().getPlayer()));
             case "boob", "boobs", "chest", "bust", "booba", "tits", "tit", "breast", "breasts", "booby", "boobies", "badonkadonks" -> 3;
             default -> 0;
         };
 
-        boolean holdOutHand = placeLocation == getDominantHand(context.getSource().getPlayer());
+        boolean holdOutHand = placeLocation == getDominantHand(Objects.requireNonNull(context.getSource().getPlayer()));
 
         executeCarrying(places[placeLocation], context.getSource().getPlayer(), holdOutHand);
         return 1;

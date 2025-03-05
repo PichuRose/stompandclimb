@@ -1,10 +1,8 @@
 package pichurose.stompandclimb.items;
 
-import io.github.flemmli97.flan.api.ClaimHandler;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -12,7 +10,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
+import pichurose.stompandclimb.utils.FlanUtils;
 import pichurose.stompandclimb.utils.ResizingUtils;
 
 public class OmniRingItem extends Item{
@@ -27,9 +27,9 @@ public class OmniRingItem extends Item{
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
         if(world.isClientSide) { return super.use(world, user, hand); }
-        if (!ClaimHandler.canInteract((ServerPlayer) user, user.blockPosition(), ResourceLocation.of("stompandclimb:sizechanging", ':'))) { return super.use(world, user, hand); }
+        if (!FlanUtils.canInteract(user, user, FlanUtils.SIZE_CHANGING)) { return super.use(world, user, hand); }
         if(user.getCooldowns().isOnCooldown(this)){
             return super.use(world, user, hand);
         }

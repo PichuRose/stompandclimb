@@ -1,6 +1,5 @@
 package pichurose.stompandclimb;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -47,9 +46,15 @@ import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.PehkuiSupport;
 import pichurose.stompandclimb.utils.ResizingUtils;
 
+import java.util.Objects;
+
 public class StompAndClimb implements ModInitializer {
 
     public static final String MODID = "stompandclimb";
+    public static boolean hasFlan = false;
+
+    public static final ThreadLocal<Boolean> threadLocal0 = new ThreadLocal<>();
+    public static final ThreadLocal<Boolean> threadLocal1 = new ThreadLocal<>();
 
     public static final Item HARD_HAT = registerItem("hard_hat", new ArmorItem(new HardHatMaterial(), ArmorItem.Type.HELMET, new Item.Properties()));
     public static final Item SOFT_SOCKS = registerItem("soft_socks", new SoftSocksItem(new Item.Properties()));
@@ -95,6 +100,7 @@ public class StompAndClimb implements ModInitializer {
     public static final MobEffect GROW_EFFECT = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "grow_effect"), new GrowEffect());
     public static final MobEffect SHRINK_EFFECT = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "shrink_effect"), new ShrinkEffect());
 
+    @SuppressWarnings("unused")
     private static final CreativeModeTab ITEM_GROUP = Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, new ResourceLocation(MODID, "ringsandgear"), FabricItemGroup.builder()
             .icon(() -> new ItemStack(SPAWNER_RING))
             .title(Component.translatable("itemGroup.stompandclimb.ringsandgear"))
@@ -140,6 +146,11 @@ public class StompAndClimb implements ModInitializer {
 
     public StompAndClimb() {
         registerSetup(this::setup);
+        hasFlan = isLoaded("flan");
+    }
+
+    public static boolean isLoaded(String mod) {
+        return FabricLoader.getInstance().isModLoaded(mod);
     }
 
     public void registerSetup(Runnable common) {
@@ -168,7 +179,7 @@ public class StompAndClimb implements ModInitializer {
 
     public static void handleKeyPressClient(LocalPlayer player) {
         HitResult hitResult = Minecraft.getInstance().hitResult;
-        int hitResultType = -1;
+        int hitResultType;
         if (hitResult == null)
             hitResultType = 0;
         else
@@ -201,7 +212,7 @@ public class StompAndClimb implements ModInitializer {
         buf.writeInt(hitResultType);
         buf.writeInt(target != null ? target.getId() : -1);
         buf.writeBoolean(smallEnough);
-        buf.writeDouble(hitPos.x);
+        buf.writeDouble(Objects.requireNonNull(hitPos).x);
         buf.writeDouble(hitPos.y);
         buf.writeDouble(hitPos.z);
         ClientPlayNetworking.send(StompAndClimbNetworkingConstants.PICKUP_TELEPORT_PACKET, buf);
@@ -233,7 +244,7 @@ public class StompAndClimb implements ModInitializer {
             double x = buf.readDouble();
             double y = buf.readDouble();
             double z = buf.readDouble();
-            Entity target = targetId != -1 ? player.getServer().getLevel(player.level().dimension()).getEntity(targetId) : null;
+            Entity target = targetId != -1 ? Objects.requireNonNull(Objects.requireNonNull(player.getServer()).getLevel(player.level().dimension())).getEntity(targetId) : null;
             Vec3 hitPos = new Vec3(x, y, z);
             server.execute(() -> handleKeyPressServer(player, hitResultType, target, smallEnough, hitPos));
         });
@@ -245,7 +256,7 @@ public class StompAndClimb implements ModInitializer {
             boolean holdOutHand = buf.readBoolean();
             client.execute(() -> {
                 CustomCarryOffsetInterface customCarryOffsetInterface = (CustomCarryOffsetInterface) (client.player);
-                customCarryOffsetInterface.stompandclimb_updateCustomCarryCache(x, y, z, holdOutHand);
+                Objects.requireNonNull(customCarryOffsetInterface).stompandclimb_updateCustomCarryCache(x, y, z, holdOutHand);
             });
         });
 
@@ -255,7 +266,7 @@ public class StompAndClimb implements ModInitializer {
 
             if (client.player != null) {
                 //final Entity target = targetId != -1 ? client.player.getServer().getLevel(client.player.level().dimension()).getEntity(targetId) : null;
-                final Entity target = targetId != -1 ? Minecraft.getInstance().getSingleplayerServer().getLevel(client.player.level().dimension()).getEntity(targetId) : null;
+                final Entity target = targetId != -1 ? Objects.requireNonNull(Objects.requireNonNull(Minecraft.getInstance().getSingleplayerServer()).getLevel(client.player.level().dimension())).getEntity(targetId) : null;
                 client.execute(() -> {
                     if(target != null){
                         ResizingUtils.setSize(target, size);
@@ -270,7 +281,7 @@ public class StompAndClimb implements ModInitializer {
 
             if (client.player != null) {
                 //final Entity target = targetId != -1 ? client.player.getServer().getLevel(client.player.level().dimension()).getEntity(targetId) : null;
-                final Entity target = targetId != -1 ? Minecraft.getInstance().getSingleplayerServer().getLevel(client.player.level().dimension()).getEntity(targetId) : null;
+                final Entity target = targetId != -1 ? Objects.requireNonNull(Objects.requireNonNull(Minecraft.getInstance().getSingleplayerServer()).getLevel(client.player.level().dimension())).getEntity(targetId) : null;
                 client.execute(() -> {
                     if(target != null){
                         ResizingUtils.resizeInstant(target, size);
@@ -280,9 +291,6 @@ public class StompAndClimb implements ModInitializer {
         });
 
         ClientPlayNetworking.registerGlobalReceiver(StompAndClimbNetworkingConstants.UPDATE_IS_ALLOWED_TO_CLIMB_CLIENT_PACKET, (client, handler, buf, responseSender) -> {
-            double l = buf.readDouble();
-            double m = buf.readDouble();
-            double n = buf.readDouble();
             boolean isAllowedToClimb = buf.readBoolean();
 
             if (client.player != null) {
@@ -290,12 +298,13 @@ public class StompAndClimb implements ModInitializer {
                 client.execute(() -> {
                     if(client.player != null){
                         ClientLocationInterface clientLocationInterface = (ClientLocationInterface)client.player;
-                        clientLocationInterface.stompandclimb_updateCache(new Vec3(l, m, n), isAllowedToClimb);
+                        clientLocationInterface.stompandclimb_updateIsAllowedToClimb(isAllowedToClimb);
                     }
                 });
             }
         });
 
+        //noinspection CodeBlock2Expr
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(Commands.literal("customcarry")
                     .then(Commands.argument("x", DoubleArgumentType.doubleArg(-1, 1))
@@ -303,14 +312,16 @@ public class StompAndClimb implements ModInitializer {
                                     .then(Commands.argument("z", DoubleArgumentType.doubleArg(-1, 1))
                                             .executes(StompAndClimbCustomCarryCommand::executeCommandWithArg)))));
         });
+        //noinspection CodeBlock2Expr
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(Commands.literal("customcarry")
                     .then(Commands.argument("place", StringArgumentType.string())
                                             .executes(StompAndClimbCustomCarryCommand::executeCommandWithStringArg)));
         });
+        //noinspection CodeBlock2Expr
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(Commands.literal("omnisize")
-                    .then(Commands.argument("size", FloatArgumentType.floatArg(0.001f, 1024))
+                    .then(Commands.argument("size", FloatArgumentType.floatArg(0.0001f, 1024))
                             .executes(OmniSizeSetCommand::executeCommandWithArg)));
         });
     }

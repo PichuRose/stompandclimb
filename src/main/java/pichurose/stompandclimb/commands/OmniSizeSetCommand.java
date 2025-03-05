@@ -1,13 +1,11 @@
 package pichurose.stompandclimb.commands;
 
-import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import pichurose.stompandclimb.StompAndClimb;
 import pichurose.stompandclimb.items.OmniCollarItem;
 import pichurose.stompandclimb.items.OmniRingItem;
 

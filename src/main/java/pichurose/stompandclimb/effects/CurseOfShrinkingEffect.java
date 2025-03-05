@@ -1,15 +1,8 @@
 package pichurose.stompandclimb.effects;
 
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import pichurose.stompandclimb.StompAndClimb;
 import pichurose.stompandclimb.utils.ResizingUtils;
 
 import java.util.Random;

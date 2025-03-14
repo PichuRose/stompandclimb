@@ -29,6 +29,13 @@
   "item.stompandclimb.rusted_collar": "Cursed Collar of Shrinking",
   "item.stompandclimb.copper_collar_red": "Collar of Growing",
   "item.stompandclimb.rusted_collar_red": "Cursed Collar of Growing",
+
+  "item.stompandclimb.empowered_copper_collar": "Empowered Collar of Shrinking",
+  "item.stompandclimb.empowered_copper_ring": "Empowered Ring of Shrinking",
+  "item.stompandclimb.empowered_copper_collar_red": "Empowered Collar of Growing",
+  "item.stompandclimb.empowered_copper_ring_red": "Empowered Ring of Growing",
+
+
   "item.stompandclimb.dini": "Dini",
   "item.stompandclimb.golden_dini": "Golden Dini",
   "item.stompandclimb.funny_milk_grow": "Suspicious Milk",

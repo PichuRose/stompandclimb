@@ -44,13 +44,16 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
 
     @Unique
     boolean holdOutHand = true;
+    @Unique
+    boolean followBodyAngle = true;
 
     @Override
-    public void stompandclimb_updateCustomCarryCache(double x, double y, double z, boolean holdOutHand) {
+    public void stompandclimb_updateCustomCarryCache(double x, double y, double z, boolean holdOutHand, boolean followBodyAngle) {
         forwardBackOffset = x;
         upDownOffset = y;
         leftRightOffset = z;
         this.holdOutHand = holdOutHand;
+        this.followBodyAngle = followBodyAngle;
     }
 
 
@@ -70,8 +73,12 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
             //0.4 -1.45 -0.4
 
             float scale = ResizingUtils.getActualSize(player);
+            float angle;
+            if(followBodyAngle)
+                angle = player.yBodyRotO;
+            else
+                angle = player.yHeadRot;
 
-            float angle = player.yBodyRotO;
 
             double offsetX = Math.cos(Math.toRadians(angle + 90)) * (forwardBackOffset * scale) + Math.cos(Math.toRadians(angle)) * (leftRightOffset * scale);
             double offsetY = this.getY() + this.dimensions.height + passenger.getMyRidingOffset() + ((upDownOffset) * scale);

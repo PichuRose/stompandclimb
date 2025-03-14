@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AGG",
+    "GWG",
+    "GGG"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:nether_star"
+    },
+    "G": {
+      "item": "minecraft:echo_shard"
+    },
+    "W": {
+      "item": "stompandclimb:copper_ring_red"
+    }
+  },
+  "result": {
+    "item": "stompandclimb:empowered_copper_ring_red",
+    "count": 1
+  }
+}

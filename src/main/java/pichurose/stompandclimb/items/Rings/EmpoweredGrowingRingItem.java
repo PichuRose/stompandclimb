@@ -1,4 +1,4 @@
-package pichurose.stompandclimb.items;
+package pichurose.stompandclimb.items.Rings;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -6,6 +6,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -15,16 +16,16 @@ import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.FlanUtils;
 import pichurose.stompandclimb.utils.ResizingUtils;
 
-public class OmniRingItem extends Item{
-    private float SIZE = 1;
-
-    public OmniRingItem(Item.Properties settings) {
+public class EmpoweredGrowingRingItem extends Item{
+    public EmpoweredGrowingRingItem(Item.Properties settings) {
         super(settings);
     }
 
-    public void setSIZE(float SIZE) {
-        this.SIZE = SIZE;
+    @Override
+    public void inventoryTick(ItemStack stack, Level world, Entity entity, int slot, boolean selected) {
+        super.inventoryTick(stack, world, entity, slot, selected);
     }
+
 
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
@@ -33,15 +34,13 @@ public class OmniRingItem extends Item{
         if(user.getCooldowns().isOnCooldown(this)){
             return super.use(world, user, hand);
         }
-        //LOGGER.debug("RingItem used on " + (world.isClientSide ? "client" : "server"));
-        if(ResizingUtils.getSize(user) != SIZE){
-            ResizingUtils.setSize(user, SIZE);
-            user.getCooldowns().addCooldown(this, 20);
-            FriendlyByteBuf buf = PacketByteBufs.create();
-            buf.writeInt(user.getId());
-            buf.writeFloat(SIZE);
-            ServerPlayNetworking.send((ServerPlayer) user, StompAndClimbNetworkingConstants.SIZE_CHANGE_CLIENT_PACKET, buf);
-        }
+        ResizingUtils.resizeInstant(user, 1.1892071150027210667174999705605f);
+        user.getCooldowns().addCooldown(this, 20);
+        FriendlyByteBuf buf = PacketByteBufs.create();
+        buf.writeInt(user.getId());
+        buf.writeFloat(1.1892071150027210667174999705605f);
+        ServerPlayNetworking.send((ServerPlayer) user, StompAndClimbNetworkingConstants.SIZE_RESIZE_CLIENT_PACKET, buf);
         return super.use(world, user, hand);
     }
+
 }

@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import pichurose.stompandclimb.StompAndClimb;
 import pichurose.stompandclimb.interfaces.ClientLocationInterface;
-import pichurose.stompandclimb.items.SoftSocksItem;
+import pichurose.stompandclimb.items.Armor.SoftSocksItem;
 import pichurose.stompandclimb.utils.FlanUtils;
 import pichurose.stompandclimb.utils.ResizingUtils;
 

@@ -1,4 +1,4 @@
-package pichurose.stompandclimb.items;
+package pichurose.stompandclimb.items.Collars;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -15,9 +15,8 @@ import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.FlanUtils;
 import pichurose.stompandclimb.utils.ResizingUtils;
 
-public class GrowingCollarItem extends Item {
-
-    public GrowingCollarItem(Properties settings) {
+public class EmpoweredGrowingCollarItem extends Item{
+    public EmpoweredGrowingCollarItem(Item.Properties settings) {
         super(settings);
     }
 
@@ -30,16 +29,15 @@ public class GrowingCollarItem extends Item {
         if(user.getCooldowns().isOnCooldown(this)){
             return super.interactLivingEntity(stack, user, entity, hand);
         }
-        ResizingUtils.resizeInstant(entity, 1.0905077326652576592070106557607f);
+        ResizingUtils.resizeInstant(entity, 1.1892071150027210667174999705605f);
         user.getCooldowns().addCooldown(this, 20);
         FriendlyByteBuf buf = PacketByteBufs.create();
         buf.writeInt(entity.getId());
-        buf.writeFloat(1.0905077326652576592070106557607f);
+        buf.writeFloat(1.1892071150027210667174999705605f);
         if (user instanceof ServerPlayer) {
             ServerPlayNetworking.send((ServerPlayer) user, StompAndClimbNetworkingConstants.SIZE_RESIZE_CLIENT_PACKET, buf);
         }
         return super.interactLivingEntity(stack, user, entity, hand);
     }
-
 
 }

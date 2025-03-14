@@ -6,8 +6,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import pichurose.stompandclimb.items.OmniCollarItem;
-import pichurose.stompandclimb.items.OmniRingItem;
+import pichurose.stompandclimb.items.Collars.OmniCollarItem;
+import pichurose.stompandclimb.items.Rings.OmniRingItem;
 
 public class OmniSizeSetCommand {
     public static int executeCommandWithArg(CommandContext<CommandSourceStack> context) {

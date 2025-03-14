@@ -1,5 +1,6 @@
 package pichurose.stompandclimb;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -39,7 +40,10 @@ import pichurose.stompandclimb.effects.GrowEffect;
 import pichurose.stompandclimb.effects.ShrinkEffect;
 import pichurose.stompandclimb.interfaces.ClientLocationInterface;
 import pichurose.stompandclimb.interfaces.CustomCarryOffsetInterface;
-import pichurose.stompandclimb.items.*;
+import pichurose.stompandclimb.items.Armor.HoverBootsItem;
+import pichurose.stompandclimb.items.Armor.SoftSocksItem;
+import pichurose.stompandclimb.items.Collars.*;
+import pichurose.stompandclimb.items.Rings.*;
 import pichurose.stompandclimb.materials.HardHatMaterial;
 import pichurose.stompandclimb.materials.HoverBootsMaterial;
 import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
@@ -91,6 +95,12 @@ public class StompAndClimb implements ModInitializer {
     public static final Item GROWING_COLLAR = registerItem("copper_collar_red", new GrowingCollarItem(new Item.Properties()));
     public static final Item RUSTED_GROWING_COLLAR = registerItem("rusted_collar_red", new RustedGrowingCollarItem(new Item.Properties()));
 
+    public static final Item EMPOWERED_SHRINKING_RING = registerItem("empowered_copper_ring", new EmpoweredShrinkingRingItem(new Item.Properties()));
+    public static final Item EMPOWERED_SHRINKING_COLLAR = registerItem("empowered_copper_collar", new EmpoweredShrinkingCollarItem(new Item.Properties()));
+    public static final Item EMPOWERED_GROWING_RING = registerItem("empowered_copper_ring_red", new EmpoweredGrowingRingItem(new Item.Properties()));
+    public static final Item EMPOWERED_GROWING_COLLAR = registerItem("empowered_copper_collar_red", new EmpoweredGrowingCollarItem(new Item.Properties()));
+
+
     public static final Item OMNIRING = registerItem("omniring", new OmniRingItem(new Item.Properties()));
     public static final Item OMNICOLLAR = registerItem("omnicollar", new OmniCollarItem(new Item.Properties()));
 
@@ -136,11 +146,18 @@ public class StompAndClimb implements ModInitializer {
                 entries.accept(GROWING_COLLAR);
                 entries.accept(RUSTED_GROWING_RING);
                 entries.accept(RUSTED_GROWING_COLLAR);
+                entries.accept(EMPOWERED_GROWING_RING);
+                entries.accept(EMPOWERED_GROWING_COLLAR);
 
                 entries.accept(SHRINKING_RING);
                 entries.accept(SHRINKING_COLLAR);
                 entries.accept(RUSTED_SHRINKING_RING);
                 entries.accept(RUSTED_SHRINKING_COLLAR);
+                entries.accept(EMPOWERED_SHRINKING_RING);
+                entries.accept(EMPOWERED_SHRINKING_COLLAR);
+
+
+
             })
             .build());
 
@@ -254,9 +271,10 @@ public class StompAndClimb implements ModInitializer {
             double y = buf.readDouble();
             double z = buf.readDouble();
             boolean holdOutHand = buf.readBoolean();
+            boolean followBodyAngle = buf.readBoolean();
             client.execute(() -> {
                 CustomCarryOffsetInterface customCarryOffsetInterface = (CustomCarryOffsetInterface) (client.player);
-                Objects.requireNonNull(customCarryOffsetInterface).stompandclimb_updateCustomCarryCache(x, y, z, holdOutHand);
+                Objects.requireNonNull(customCarryOffsetInterface).stompandclimb_updateCustomCarryCache(x, y, z, holdOutHand, followBodyAngle);
             });
         });
 
@@ -308,9 +326,11 @@ public class StompAndClimb implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(Commands.literal("customcarry")
                     .then(Commands.argument("x", DoubleArgumentType.doubleArg(-1, 1))
-                            .then(Commands.argument("y", DoubleArgumentType.doubleArg(-2, 1))
-                                    .then(Commands.argument("z", DoubleArgumentType.doubleArg(-1, 1))
-                                            .executes(StompAndClimbCustomCarryCommand::executeCommandWithArg)))));
+                    .then(Commands.argument("y", DoubleArgumentType.doubleArg(-2, 1))
+                    .then(Commands.argument("z", DoubleArgumentType.doubleArg(-1, 1))
+                    .then(Commands.argument("holdOutHand", BoolArgumentType.bool())
+                    .then(Commands.argument("followBodyAngle", BoolArgumentType.bool())
+                        .executes(StompAndClimbCustomCarryCommand::executeCommandWithArg)))))));
         });
         //noinspection CodeBlock2Expr
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
@@ -321,7 +341,7 @@ public class StompAndClimb implements ModInitializer {
         //noinspection CodeBlock2Expr
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(Commands.literal("omnisize")
-                    .then(Commands.argument("size", FloatArgumentType.floatArg(0.0001f, 1024))
+                    .then(Commands.argument("size", FloatArgumentType.floatArg(Float.MIN_VALUE, 1024))
                             .executes(OmniSizeSetCommand::executeCommandWithArg)));
         });
     }

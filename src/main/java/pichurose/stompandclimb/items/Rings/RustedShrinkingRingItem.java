@@ -1,4 +1,4 @@
-package pichurose.stompandclimb.items;
+package pichurose.stompandclimb.items.Rings;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;

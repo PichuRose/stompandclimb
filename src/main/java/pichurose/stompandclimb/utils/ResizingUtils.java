@@ -31,15 +31,12 @@ public class ResizingUtils {
     public static void resizeOneSecond(Entity entity, float mult){
         if (entity == null) return;
         float entitySize = getSize(entity);
-        if(entitySize > 1024 || entitySize < .0001){
+        if(entitySize > 1024){
             return;
         }
         float newSize = getSize(entity) * mult;
         if(newSize > 1024f){
             newSize = 1024f;
-        }
-        if(newSize < .0001){
-            newSize = .0001f;
         }
 
         PehkuiSupport.SACScaleType.get().getScaleData(entity).setScaleTickDelay(20);

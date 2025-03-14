@@ -1,4 +1,4 @@
-package pichurose.stompandclimb.items;
+package pichurose.stompandclimb.items.Collars;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -20,9 +20,10 @@ import pichurose.stompandclimb.utils.FlanUtils;
 import pichurose.stompandclimb.utils.ResizingUtils;
 
 
-public class RustedGrowingCollarItem extends Item {
 
-    public RustedGrowingCollarItem(Properties settings) {
+public class RustedShrinkingCollarItem extends Item {
+
+    public RustedShrinkingCollarItem(Properties settings) {
         super(settings);
     }
 
@@ -30,7 +31,7 @@ public class RustedGrowingCollarItem extends Item {
     public void inventoryTick(ItemStack stack, Level world, Entity entity, int slot, boolean selected) {
         super.inventoryTick(stack, world, entity, slot, selected);
         if(entity instanceof LivingEntity){
-            ((LivingEntity)entity).addEffect(new MobEffectInstance(StompAndClimb.CURSE_OF_GROWING, 20, 0, true, false, false));
+            ((LivingEntity)entity).addEffect(new MobEffectInstance(StompAndClimb.CURSE_OF_SHRINKING, 20, 0, true, false, false));
         }
     }
 
@@ -41,16 +42,17 @@ public class RustedGrowingCollarItem extends Item {
         if(user.getCooldowns().isOnCooldown(this)){
             return super.interactLivingEntity(stack, user, entity, hand);
         }
-        ResizingUtils.resizeInstant(entity, 1.0905077326652576592070106557607f);
-        entity.addEffect(new MobEffectInstance(StompAndClimb.CURSE_OF_GROWING, 12000, 0, true, false, false));
+        ResizingUtils.resizeInstant(entity, 0.91700404320467123174354159479414f);
+        entity.addEffect(new MobEffectInstance(StompAndClimb.CURSE_OF_SHRINKING, 12000, 0, true, false, false));
         user.getCooldowns().addCooldown(this, 20);
         FriendlyByteBuf buf = PacketByteBufs.create();
         buf.writeInt(entity.getId());
-        buf.writeFloat(1.0905077326652576592070106557607f);
+        buf.writeFloat(0.91700404320467123174354159479414f);
         if (user instanceof ServerPlayer) {
             ServerPlayNetworking.send((ServerPlayer) user, StompAndClimbNetworkingConstants.SIZE_RESIZE_CLIENT_PACKET, buf);
         }
         return super.interactLivingEntity(stack, user, entity, hand);
     }
+
 
 }

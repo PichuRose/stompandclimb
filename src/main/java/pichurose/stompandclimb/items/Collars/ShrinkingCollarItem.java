@@ -1,4 +1,4 @@
-package pichurose.stompandclimb.items;
+package pichurose.stompandclimb.items.Collars;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -30,11 +30,11 @@ public class ShrinkingCollarItem extends Item {
         if(user.getCooldowns().isOnCooldown(this)){
             return super.interactLivingEntity(stack, user, entity, hand);
         }
-        ResizingUtils.resizeInstant(entity, 0.91700404320467123174354159479414f);
+        ResizingUtils.resizeInstant(entity, 0.95760328069857364693630563514792f);
         user.getCooldowns().addCooldown(this, 20);
         FriendlyByteBuf buf = PacketByteBufs.create();
         buf.writeInt(entity.getId());
-        buf.writeFloat(0.91700404320467123174354159479414f);
+        buf.writeFloat(0.95760328069857364693630563514792f);
         if (user instanceof ServerPlayer) {
             ServerPlayNetworking.send((ServerPlayer) user, StompAndClimbNetworkingConstants.SIZE_RESIZE_CLIENT_PACKET, buf);
         }

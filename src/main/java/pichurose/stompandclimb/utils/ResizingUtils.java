@@ -67,7 +67,7 @@ public class ResizingUtils {
         if (entity == null) return 1;
         AtomicReference<Float> size = new AtomicReference<>(1f);
         //noinspection UnstableApiUsage
-        size.set(size.get() * ScaleUtils.getBoundingBoxHeightScale(entity));
+        size.set(size.get() * ScaleUtils.getModelHeightScale(entity));
         return size.get();
     }
 }

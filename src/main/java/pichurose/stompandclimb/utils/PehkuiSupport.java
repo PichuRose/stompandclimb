@@ -31,10 +31,30 @@ public class PehkuiSupport {
                 .build();
         ScaleRegistries.SCALE_TYPES.put(new ResourceLocation(StompAndClimb.MODID+":resize"), suType);
         Optional<ScaleType> baseType = getType("base");
+        Optional<ScaleType> attackType = getType("attack");
+        Optional<ScaleType> defenseType = getType("defense");
+        Optional<ScaleType> miningspeedType = getType("mining_speed");
+        Optional<ScaleType> knockbackType = getType("knockback");
         // suppress warning because I don't want to risk accidental class loading, nor do I want intelliJ constantly warning me about the fact that I do this
         //noinspection OptionalIsPresent
         if (baseType.isPresent())
             baseType.get().getDefaultBaseValueModifiers().add(modifier);
+        //noinspection OptionalIsPresent
+        if (attackType.isPresent()){
+            attackType.get().getDefaultBaseValueModifiers().add(modifier);
+        }
+        //noinspection OptionalIsPresent
+        if (defenseType.isPresent()){
+            defenseType.get().getDefaultBaseValueModifiers().add(modifier);
+        }
+        //noinspection OptionalIsPresent
+        if (miningspeedType.isPresent()){
+            miningspeedType.get().getDefaultBaseValueModifiers().add(modifier);
+        }
+        //noinspection OptionalIsPresent
+        if (knockbackType.isPresent()){
+            knockbackType.get().getDefaultBaseValueModifiers().add(modifier);
+        }
         SACScaleType.set(suType);
     }
 

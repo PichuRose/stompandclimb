@@ -32,6 +32,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import pichurose.stompandclimb.commands.GetSizeCommand;
 import pichurose.stompandclimb.commands.OmniSizeSetCommand;
 import pichurose.stompandclimb.commands.StompAndClimbCustomCarryCommand;
 import pichurose.stompandclimb.effects.CurseOfGrowingEffect;
@@ -344,6 +345,11 @@ public class StompAndClimb implements ModInitializer {
                     .then(Commands.argument("size", FloatArgumentType.floatArg(Float.MIN_VALUE, 1024))
                             .executes(OmniSizeSetCommand::executeCommandWithArg)));
         });
+        //noinspection CodeBlock2Expr
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            dispatcher.register(Commands.literal("getsize").executes(GetSizeCommand::executeCommand));
+        });
+
     }
 
     private void setup() {

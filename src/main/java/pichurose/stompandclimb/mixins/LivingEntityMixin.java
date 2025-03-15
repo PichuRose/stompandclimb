@@ -5,10 +5,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.monster.Endermite;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.item.ArmorItem;
@@ -58,183 +56,6 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
 
 
 
-    /*@Inject(method = "doPush", at = @At("HEAD"), cancellable = true)
-    private void injected(Entity entity, CallbackInfo ci) {
-        if (entity instanceof Minecart) {
-            //StompAndClimbForge.log("push called by minecart");
-            return;
-        }
-        if (((Entity)(Object) this).getPassengers().contains(entity)) {
-            //StompAndClimbForge.log("push called by passenger");
-            ci.cancel();
-            return;
-        }
-
-        boolean softSocks = false;
-        boolean hardHat = false;
-
-        if (entity.getPassengers().contains(((Entity)(Object) this))) {
-            //StompAndClimbForge.log("push called by passenger");
-            softSocks = true;
-        }
-
-        float bootsArmor = 0;
-        Vec3 velocity = new Vec3(0, 0, 0);
-        Vec3 nonPlayerVelocity = new Vec3(0, 0, 0);
-        boolean tryStomp = false;
-        if (((Object) this) instanceof Player player) {
-            for (ItemStack armorItem : player.getArmorSlots()) {
-                if (armorItem.isEmpty())
-                    continue;
-                else if (armorItem.getItem() instanceof SoftSocksItem){
-                    softSocks = true;
-                }
-
-                /*else if (armorItem.getItem().getEquipmentSlot(armorItem) == EquipmentSlot.FEET){
-                    StompAndClimbForge.log("armor item is " + armorItem.getItem().toString() + " and the defense is " + ((ArmorItem)armorItem.getItem()).getDefense());
-                    bootsArmor = ((ArmorItem)armorItem.getItem()).getDefense();
-                }
-                else if (armorItem.getItem() instanceof ArmorItem armorItemInstance && armorItemInstance.getType() == ArmorItem.Type.BOOTS){
-                    //StompAndClimbForge.log("armor item is " + armorItem.getItem().toString() + " and the defense is " + armorItemInstance.getDefense());
-                    bootsArmor = armorItemInstance.getDefense();
-                }
-            }
-
-
-            //StompAndClimbForge.log("push called by player");
-            velocity = playerVec;
-            if (velocity.x != 0 || velocity.y != 0 || velocity.z != 0) {
-                tryStomp = true;
-            }
-            if (player.isShiftKeyDown()) {
-                tryStomp = false;
-                double entityHeightDimensions = entity.getDimensions(Pose.STANDING).height;
-                double thisHeightDimensions = getDimensions(Pose.STANDING).height;
-                double heightDiffDimensions = entityHeightDimensions / thisHeightDimensions;
-                if (heightDiffDimensions <= 1) {
-                    //StompAndClimbForge.log("height difference not great enough");
-                    return;
-                }
-            }
-
-        } else {
-            nonPlayerVelocity = ((Entity) (Object) this).getDeltaMovement();
-            if (nonPlayerVelocity.x != 0 || nonPlayerVelocity.z != 0) {
-                tryStomp = true;
-            }
-        }
-
-        if (tryStomp) {
-            //StompAndClimbForge.log("tryStomp called");
-            double entityHeightDimensions = entity.getDimensions(Pose.STANDING).height;
-            double thisHeightDimensions = getDimensions(Pose.STANDING).height;
-            double thisYPos = ((Entity) (Object) this).position().y;
-            double theirYPos = entity.position().y + entityHeightDimensions;
-            double YPosDifference = (Math.abs(thisYPos - theirYPos));
-            boolean YPosCloseEnough = YPosDifference <= (thisHeightDimensions / 3);
-            double heightDiffDimensions = thisHeightDimensions / entityHeightDimensions;
-            if (entity instanceof LivingEntity && entity.isAlive() && heightDiffDimensions >= 4 && YPosCloseEnough) {
-                if (!(entity instanceof Player) || ((entity instanceof Player) && ((Player) entity).canBeSeenAsEnemy())) {
-                    for (ItemStack armorItem : entity.getArmorSlots()) {
-                        if (armorItem.isEmpty())
-                            continue;
-                        else if (armorItem.getItem().equals(StompAndClimb.HARD_HAT)) {
-                            hardHat = true;
-                        }
-                    }
-                    //StompAndClimbForge.log("stomp called");
-                    DamageSource damageSource;
-
-
-                    if(StompAndClimb.hasFlan){
-                        ResourceLocation perm = entity instanceof Player ? FlanUtils.STOMP_PLAYER : FlanUtils.STOMP_MOB;
-
-                        if(((Object) this) instanceof Player player) {
-                            if (!FlanUtils.canInteract(player, entity.blockPosition(), perm)) {
-                                //player.getServer().sendSystemMessage(Component.literal("player cannot stomp "+perm));
-                                ci.cancel();
-                                return;
-                            }
-                            else{
-                                //player.getServer().sendSystemMessage(Component.literal("player can stomp "+perm));
-                            }
-                        }
-                        else{
-                            if(!FlanUtils.permEnabled(entity, perm)){
-                                ci.cancel();
-                                return;
-                            }
-                            else{
-                                //player.getServer().sendSystemMessage(Component.literal("player can stomp "+perm));
-                            }
-                        }
-                    }
-
-
-                    //DamageSource damageSource = ((LivingEntity) (Object) this).damageSources().cramming();
-                    //((LivingEntity) (Object) this).doHurtTarget(entity);
-                    //DamageSource damageSource = DamageSource.GENERIC;
-
-                    //if(EntityInteractEvents.preventDamage(entity, damageSource)){
-
-                    damageSource = ((LivingEntity) (Object) this).damageSources().generic();
-                    if (hardHat && softSocks) {
-                        entity.hurt(damageSource, 0);
-                    } else if (hardHat) {
-                        entity.hurt(damageSource, 1);
-                    } else if (softSocks) {
-                        entity.hurt(damageSource, 1);
-                    } else {
-                        //StompAndClimbForge.log("stomp damage");
-                        int armorpoints = ((LivingEntity) entity).getArmorValue();
-                        if (armorpoints <= 0) {
-                            armorpoints = 1;
-                        }
-                        if (bootsArmor <= 0){
-                            bootsArmor = 1;
-                        }
-                        double heightDiffPow2 = Math.pow(heightDiffDimensions, 2);
-                        double armorPtsSqrt = Math.sqrt(armorpoints);
-                        float damageFull = (float) (heightDiffPow2 / armorPtsSqrt) * bootsArmor / 2f;
-
-                        double velocityX = 0;
-                        double velocityY = 0;
-                        double velocityZ = 0;
-                        float speedDamageMultiplier = 1;
-
-                        Vec3 speedMultVelocity = new Vec3(0, 0, 0);
-
-                        if (((Object) this) instanceof Player) {
-                            speedMultVelocity = new Vec3(velocity.x, velocity.y, velocity.z);
-                        }
-                        else {
-                            speedMultVelocity = new Vec3(nonPlayerVelocity.x, nonPlayerVelocity.y, nonPlayerVelocity.z);
-                        }
-
-
-
-                        float thisActualSize = ResizingUtils.getActualSize((Entity)(Object)this);
-                        velocityX = (Math.abs(speedMultVelocity.x) / thisActualSize)+1;
-                        velocityY = (Math.abs(speedMultVelocity.y)*2 / thisActualSize)+1;
-                        velocityZ = (Math.abs(speedMultVelocity.z) / thisActualSize)+1;
-
-                        speedDamageMultiplier = (float) (Math.pow(Math.max(velocityX, velocityZ),3) * velocityY);
-
-                        float damageFinal = damageFull * speedDamageMultiplier;
-
-                        //StompAndClimbForge.log("push called by player with velocity " + velocityX + " " + velocityY + " " + velocityZ);
-                        //StompAndClimbForge.log("velocity multiplied together is " + speedDamageMultiplier);
-                        //StompAndClimb.log("damage: " + damageFull + "/" + damageFinal);
-                        entity.hurt(damageSource, damageFinal);
-                    }
-                }
-            }
-        }
-        ci.cancel();
-    }*/
-
-
-
     @Inject(method = "doPush", at = @At("HEAD"), cancellable = true)
     private void doPushButStompHead(Entity entity, CallbackInfo ci) {
         double thisHeight = ((Entity)(Object)this).getDimensions(Pose.STANDING).height;
@@ -270,14 +91,14 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
     @Unique
     private boolean doStomp(Entity collider, Entity collidee) {
         if (collidee instanceof Minecart) {return true;}
-        if (collider.getPassengers().contains(collidee)) {return false;}
+        if (collidee.isPassenger()) { return false; }
+        if (collider.isPassenger()) { return false; }
+
+        if(collidee instanceof Endermite || (collidee instanceof AgeableMob possibleBaby && possibleBaby.isBaby())){
+            return false;
+        }
 
         boolean softSocks = false, hardHat = false;
-
-        if (collidee.getPassengers().contains(collider)) {
-            //StompAndClimbForge.log("push called by passenger");
-            softSocks = true;
-        }
 
         float bootsArmor = 0;
         Vec3 velocity = new Vec3(0, 0, 0);

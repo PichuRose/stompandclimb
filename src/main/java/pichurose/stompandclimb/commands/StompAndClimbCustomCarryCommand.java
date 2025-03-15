@@ -35,8 +35,9 @@ public class StompAndClimbCustomCarryCommand {
         double y = DoubleArgumentType.getDouble(context, "y");
         double z = DoubleArgumentType.getDouble(context, "z");
         boolean holdOutHand = BoolArgumentType.getBool(context, "holdOutHand");
-        boolean followBodyAngle = BoolArgumentType.getBool(context, "followBodyAngle");
-        executeCarrying(x, y, z, context.getSource().getPlayer(), holdOutHand, followBodyAngle);
+        boolean followBodyAngle = !BoolArgumentType.getBool(context, "followHead");
+        boolean invisiblePassengers = BoolArgumentType.getBool(context, "invisiblePassengers");
+        executeCarrying(x, y, z, context.getSource().getPlayer(), holdOutHand, followBodyAngle, invisiblePassengers);
         context.getSource().sendSuccess(() -> Component.literal("Called /custom_carry with x = %s, y = %s, z = %s".formatted(x, y, z)), false);
         return 1;
     }
@@ -56,19 +57,20 @@ public class StompAndClimbCustomCarryCommand {
 
         boolean holdOutHand = placeLocation == getDominantHand(Objects.requireNonNull(context.getSource().getPlayer()));
         boolean followBodyAngle = placeLocation != 4;
+        boolean invisiblePassengers = false;
 
-        executeCarrying(places[placeLocation], context.getSource().getPlayer(), holdOutHand, followBodyAngle);
+        executeCarrying(places[placeLocation], context.getSource().getPlayer(), holdOutHand, followBodyAngle, invisiblePassengers);
         return 1;
     }
 
-    public static void executeCarrying(double[] relativeLocation, ServerPlayer player, boolean holdOutHand, boolean followBodyAngle){
-        executeCarrying(relativeLocation[0], relativeLocation[1], relativeLocation[2], player, holdOutHand, followBodyAngle);
+    public static void executeCarrying(double[] relativeLocation, ServerPlayer player, boolean holdOutHand, boolean followBodyAngle, boolean invisiblePassengers){
+        executeCarrying(relativeLocation[0], relativeLocation[1], relativeLocation[2], player, holdOutHand, followBodyAngle, invisiblePassengers);
     }
 
-    public static void executeCarrying(double x, double y, double z, ServerPlayer player, boolean holdOutHand, boolean followBodyAngle){
+    public static void executeCarrying(double x, double y, double z, ServerPlayer player, boolean holdOutHand, boolean followBodyAngle, boolean invisiblePassengers){
 
         CustomCarryOffsetInterface customCarryOffsetInterface = (CustomCarryOffsetInterface)(player);
-        customCarryOffsetInterface.stompandclimb_updateCustomCarryCache(x, y, z, holdOutHand, followBodyAngle);
+        customCarryOffsetInterface.stompandclimb_updateCustomCarryCache(x, y, z, holdOutHand, followBodyAngle, invisiblePassengers);
 
 
         FriendlyByteBuf buf = PacketByteBufs.create();
@@ -77,6 +79,7 @@ public class StompAndClimbCustomCarryCommand {
         buf.writeDouble(z);
         buf.writeBoolean(holdOutHand);
         buf.writeBoolean(followBodyAngle);
+        buf.writeBoolean(invisiblePassengers);
         ServerPlayNetworking.send(player, StompAndClimbNetworkingConstants.CUSTOM_CARRY_POS_CLIENT_PACKET, buf);
 
     }

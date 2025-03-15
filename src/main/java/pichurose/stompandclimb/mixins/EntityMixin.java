@@ -1,6 +1,8 @@
 package pichurose.stompandclimb.mixins;
 
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
@@ -34,7 +36,6 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
     @Shadow
     private EntityDimensions dimensions;
 
-
     @Unique
     public double forwardBackOffset = 0.5;
     @Unique
@@ -46,14 +47,17 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
     boolean holdOutHand = true;
     @Unique
     boolean followBodyAngle = true;
+    @Unique
+    boolean invisiblePassengers = false;
 
     @Override
-    public void stompandclimb_updateCustomCarryCache(double x, double y, double z, boolean holdOutHand, boolean followBodyAngle) {
+    public void stompandclimb_updateCustomCarryCache(double x, double y, double z, boolean holdOutHand, boolean followBodyAngle, boolean invisiblePassengers) {
         forwardBackOffset = x;
         upDownOffset = y;
         leftRightOffset = z;
         this.holdOutHand = holdOutHand;
         this.followBodyAngle = followBodyAngle;
+        this.invisiblePassengers = invisiblePassengers;
     }
 
 
@@ -79,16 +83,21 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
             else
                 angle = player.yHeadRot;
 
+            if (holdOutHand) {
+                player.swingTime = 0;
+                player.swing(InteractionHand.MAIN_HAND);
+            }
+
+            if (invisiblePassengers && passenger instanceof LivingEntity) {
+                ((LivingEntity) passenger).addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 5, 0, true, false, false));
+            }
 
             double offsetX = Math.cos(Math.toRadians(angle + 90)) * (forwardBackOffset * scale) + Math.cos(Math.toRadians(angle)) * (leftRightOffset * scale);
             double offsetY = this.getY() + this.dimensions.height + passenger.getMyRidingOffset() + ((upDownOffset) * scale);
             double offsetZ = Math.sin(Math.toRadians(angle + 90)) * (forwardBackOffset * scale) + Math.sin(Math.toRadians(angle)) * (leftRightOffset * scale);
 
 
-            if (holdOutHand) {
-                player.swingTime = 0;
-                player.swing(InteractionHand.MAIN_HAND);
-            }
+
 
             positionUpdater.accept(passenger, this.getX() + offsetX, offsetY, this.getZ() + offsetZ);
 

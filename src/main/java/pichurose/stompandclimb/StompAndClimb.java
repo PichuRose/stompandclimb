@@ -273,9 +273,10 @@ public class StompAndClimb implements ModInitializer {
             double z = buf.readDouble();
             boolean holdOutHand = buf.readBoolean();
             boolean followBodyAngle = buf.readBoolean();
+            boolean invisiblePassengers = buf.readBoolean();
             client.execute(() -> {
                 CustomCarryOffsetInterface customCarryOffsetInterface = (CustomCarryOffsetInterface) (client.player);
-                Objects.requireNonNull(customCarryOffsetInterface).stompandclimb_updateCustomCarryCache(x, y, z, holdOutHand, followBodyAngle);
+                Objects.requireNonNull(customCarryOffsetInterface).stompandclimb_updateCustomCarryCache(x, y, z, holdOutHand, followBodyAngle, invisiblePassengers);
             });
         });
 
@@ -330,8 +331,9 @@ public class StompAndClimb implements ModInitializer {
                     .then(Commands.argument("y", DoubleArgumentType.doubleArg(-2, 1))
                     .then(Commands.argument("z", DoubleArgumentType.doubleArg(-1, 1))
                     .then(Commands.argument("holdOutHand", BoolArgumentType.bool())
-                    .then(Commands.argument("followBodyAngle", BoolArgumentType.bool())
-                        .executes(StompAndClimbCustomCarryCommand::executeCommandWithArg)))))));
+                    .then(Commands.argument("followHead", BoolArgumentType.bool())
+                    .then(Commands.argument("invisiblePassengers", BoolArgumentType.bool())
+                        .executes(StompAndClimbCustomCarryCommand::executeCommandWithArg))))))));
         });
         //noinspection CodeBlock2Expr
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {

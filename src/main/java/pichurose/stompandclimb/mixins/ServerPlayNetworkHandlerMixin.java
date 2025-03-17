@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import pichurose.stompandclimb.StompAndClimb;
 import pichurose.stompandclimb.interfaces.ClientLocationInterface;
 import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.FlanUtils;
@@ -44,7 +45,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     @Shadow private double lastGoodZ;
 
     @Unique
-    boolean isAllowedToClimbOld = false;
+    boolean isAllowedToClimbOld = true;
 
 
     @Shadow @Final private MinecraftServer server;
@@ -64,15 +65,17 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
         ResourceLocation perm = FlanUtils.CLIMBING;
         //boolean isAllowedToClimb = ClaimHandler.canInteract(player, new BlockPos((int)packet.getX(this.player.getX()), (int)packet.getY(this.player.getY()), (int)packet.getZ(this.player.getZ())), perm);
-        boolean isAllowedToClimb = FlanUtils.canInteract(player, new BlockPos((int)packet.getX(this.player.getX()), (int)packet.getY(this.player.getY()), (int)packet.getZ(this.player.getZ())), perm);
-        if(isAllowedToClimb != isAllowedToClimbOld){
-            this.server.sendSystemMessage(Component.literal("isAllowedToClimb: " + isAllowedToClimb));
-            isAllowedToClimbOld = isAllowedToClimb;
-            clientLocationInterface.stompandclimb_updateIsAllowedToClimb(isAllowedToClimb);
+        if(StompAndClimb.hasFlan && this.player.isAlive()) {
+            boolean isAllowedToClimb = FlanUtils.canInteract(player, new BlockPos((int)packet.getX(this.player.getX()), (int)packet.getY(this.player.getY()), (int)packet.getZ(this.player.getZ())), perm);
+            if(isAllowedToClimb != isAllowedToClimbOld){
+                this.server.sendSystemMessage(Component.literal("isAllowedToClimb: " + isAllowedToClimb));
+                isAllowedToClimbOld = isAllowedToClimb;
+                clientLocationInterface.stompandclimb_updateIsAllowedToClimb(isAllowedToClimb);
 
-            FriendlyByteBuf buf = PacketByteBufs.create();
-            buf.writeBoolean(isAllowedToClimb);
-            ServerPlayNetworking.send(player, StompAndClimbNetworkingConstants.UPDATE_IS_ALLOWED_TO_CLIMB_CLIENT_PACKET, buf);
+                FriendlyByteBuf buf = PacketByteBufs.create();
+                buf.writeBoolean(isAllowedToClimb);
+                ServerPlayNetworking.send(player, StompAndClimbNetworkingConstants.UPDATE_IS_ALLOWED_TO_CLIMB_CLIENT_PACKET, buf);
+        }
         }
 
 

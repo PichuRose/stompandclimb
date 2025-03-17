@@ -1,10 +1,10 @@
 package pichurose.stompandclimb.mixins;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -55,7 +55,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
     }
 
     @Unique
-    public boolean isAllowedToClimb = false;
+    public boolean isAllowedToClimb = true;
 
 
 
@@ -376,13 +376,38 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         LivingEntity entity = (LivingEntity) (Object) this;
         if(!(entity instanceof Player)){ return; }
         DamageType type = source.type();
-        //noinspection EqualsBetweenInconvertibleTypes
-        if(!type.equals(DamageTypes.MOB_ATTACK)&&!type.equals(DamageTypes.MOB_ATTACK_NO_AGGRO)&&!type.equals(DamageTypes.MOB_PROJECTILE)&&!type.equals(DamageTypes.HOT_FLOOR)&&!type.equals(DamageTypes.CACTUS)&&!type.equals(DamageTypes.LAVA)&&!type.equals(DamageTypes.IN_FIRE)&&!type.equals(DamageTypes.THORNS)&&!type.equals(DamageTypes.TRIDENT)) { return; }
+
+        String[] allowedDamageTypes = {
+                "MOB", "MOB_ATTACK_NO_AGGRO", "MOB_PROJECTILE",
+                "HOTFLOOR", "CACTUS", "LAVA", "INFIRE", "SWEETBERRYBUSH",
+                "THORNS", "TRIDENT", "ARROW", "FIREBALL", "CAMPFIRE"
+        };
+        boolean damageTypeNotAllowed = true;
+        for(String allowedDamageType : allowedDamageTypes){
+            //.substring(46,allowedDamageType.length()-1)
+            String allowedDamageTypeCut = allowedDamageType.toLowerCase();
+            if(type.toString().toLowerCase().contains(allowedDamageTypeCut)){
+                damageTypeNotAllowed = false;
+                ((Player)entity).displayClientMessage(Component.literal("Allowed! Type: " + type.toString()), true);
+                break;
+            }
+            //((Player)entity).displayClientMessage(Component.literal("disallowed Type: "+allowedDamageTypeCut + " Type: " + type.toString()), false);
+        }
+        if (damageTypeNotAllowed) { ((Player)entity).displayClientMessage(Component.literal(type.toString()), false); return; }
         float entitySize = ResizingUtils.getActualSize(entity);
         if(entitySize < 8f){ return; }
 
         //no hurt if amount is less than 0.5 damage(1/4th heart) after dividing by size
         if (amount/entitySize <= 0.5 && entity instanceof Player) { cir.setReturnValue(false); }
     }
+            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: mob_attack Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
+            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: mob_attack_no_aggro Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
+            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: mob_projectile Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
+            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: hot_floor Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
+            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: cactus Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
+            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: lava Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
+            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: in_fire Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
+            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: thorns Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
+            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: trident Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
 
 }

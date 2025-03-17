@@ -351,7 +351,6 @@ public class StompAndClimb implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(Commands.literal("getsize").executes(GetSizeCommand::executeCommand));
         });
-
     }
 
     private void setup() {

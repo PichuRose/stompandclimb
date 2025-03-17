@@ -145,5 +145,27 @@
   "flan.permission.stompandclimb:sizechanging" : "Size Changing(TRADE PERM ALSO AFFECTS COLLARS)",
   "flan.permission.stompandclimb:sizechanging.desc" : "Allow changing size in the claim(global)",
   "flan.permission.stompandclimb:climbing" : "Climbing",
-  "flan.permission.stompandclimb:climbing.desc" : "Allow climbing with sticky items in the claim(global)"
+  "flan.permission.stompandclimb:climbing.desc" : "Allow climbing with sticky items in the claim(global)",
+
+  "item.mythicmetals.tipped_runite_arrow.effect.shrink_potion" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.shrink_potion_2" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.shrink_potion_3" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.shrink_potion_4" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.shrink_potion_5" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.shrink_potion_6" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.shrink_potion_7" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.shrink_potion_8" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.shrink_potion_9" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.shrink_potion_10" : "Runite Arrow of Shrinking",
+
+  "item.mythicmetals.tipped_runite_arrow.effect.grow_potion" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.grow_potion_2" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.grow_potion_3" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.grow_potion_4" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.grow_potion_5" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.grow_potion_6" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.grow_potion_7" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.grow_potion_8" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.grow_potion_9" : "Runite Arrow of Shrinking",
+  "item.mythicmetals.tipped_runite_arrow.effect.grow_potion_10" : "Runite Arrow of Shrinking"
 }

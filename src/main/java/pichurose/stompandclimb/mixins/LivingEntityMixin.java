@@ -6,6 +6,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Endermite;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Minecart;
@@ -36,6 +37,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     @Shadow private Optional<BlockPos> lastClimbablePos;
+
     @Unique
     public Vec3 playerVec = Vec3.ZERO;
 
@@ -345,6 +347,36 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         if ((((Object) this) instanceof Player) && effect.getEffect() == MobEffects.POISON && effect.getAmplifier() == 0 && ResizingUtils.getSize((Entity)(Object)this) >= 8) {
             cir.setReturnValue(false);
         }
+    }
+
+    //scale down knockback based on size if bigger than 1
+    @Inject(method = "knockback", at = @At("HEAD"), cancellable = true)
+    private void modifyKnockback(double strength, double x, double z, CallbackInfo ci) {
+        LivingEntity entity = (LivingEntity) (Object) this;
+        float entitySize = ResizingUtils.getActualSize(entity);
+        if(entitySize <= 1f){
+            return;
+        }
+        strength /= entitySize;
+        strength *= (double)1.0F - entity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
+        if (!(strength <= (double)0.0F)) {
+            entity.hasImpulse = true;
+            Vec3 vec3 = entity.getDeltaMovement();
+            Vec3 vec32 = (new Vec3(x, 0.0F, z)).normalize().scale(strength);
+            entity.setDeltaMovement(vec3.x / (double)2.0F - vec32.x, entity.onGround() ? Math.min(0.4, vec3.y / (double)2.0F + strength) : vec3.y, vec3.z / (double)2.0F - vec32.z);
+        }
+        ci.cancel();
+    }
+
+    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
+    private void disableScreenMovement(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        LivingEntity entity = (LivingEntity) (Object) this;
+        if(!(entity instanceof Player)){ return; }
+        float entitySize = ResizingUtils.getActualSize(entity);
+        if(entitySize < 8f){ return; }
+
+        //no hurt if amount is less than 0.5 damage(1/4th heart) after dividing by size
+        if (amount/entitySize <= 0.5 && entity instanceof Player) { cir.setReturnValue(false); }
     }
 
 }

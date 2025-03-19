@@ -400,14 +400,4 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         //no hurt if amount is less than 0.5 damage(1/4th heart) after dividing by size
         if (amount/entitySize <= 0.5 && entity instanceof Player) { cir.setReturnValue(false); }
     }
-            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: mob_attack Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
-            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: mob_attack_no_aggro Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
-            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: mob_projectile Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
-            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: hot_floor Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
-            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: cactus Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
-            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: lava Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
-            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: in_fire Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
-            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: thorns Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
-            //[20:24:34] [Render thread/INFO] (Minecraft) [System] [CHAT] disallowed Type: trident Type: DamageType[msgId=mob, scaling=WHEN_CAUSED_BY_LIVING_NON_PLAYER, exhaustion=0.1, effects=HURT, deathMessageType=DEFAULT]
-
 }

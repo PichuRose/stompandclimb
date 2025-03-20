@@ -3,6 +3,8 @@ package pichurose.stompandclimb.mixins;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -356,9 +358,6 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
     private void modifyKnockback(double strength, double x, double z, CallbackInfo ci) {
         LivingEntity entity = (LivingEntity) (Object) this;
         float entitySize = ResizingUtils.getActualSize(entity);
-        if(entitySize <= 1f){
-            return;
-        }
         strength /= entitySize;
         strength *= (double)1.0F - entity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
         if (!(strength <= (double)0.0F)) {
@@ -370,16 +369,21 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         ci.cancel();
     }
 
+
+
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
     private void disableScreenMovement(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-
-        LivingEntity entity = (LivingEntity) (Object) this;
-        if(!(entity instanceof Player)){ return; }
         DamageType type = source.type();
+        LivingEntity entity = (LivingEntity) (Object) this;
+        float entitySize = ResizingUtils.getActualSize(entity);
+        if(entitySize < 4f){ return; }
+
+        //if(!(entity instanceof Player)){ return; }
+
 
         String[] allowedDamageTypes = {
                 "MOB", "MOB_ATTACK_NO_AGGRO", "MOB_PROJECTILE",
-                "HOTFLOOR", "CACTUS", "LAVA", "INFIRE", "SWEETBERRYBUSH",
+                "HOTFLOOR", "CACTUS", "LAVA", "SWEETBERRYBUSH",
                 "THORNS", "TRIDENT", "ARROW", "FIREBALL", "CAMPFIRE"
         };
         boolean damageTypeNotAllowed = true;
@@ -388,16 +392,24 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
             String allowedDamageTypeCut = allowedDamageType.toLowerCase();
             if(type.toString().toLowerCase().contains(allowedDamageTypeCut)){
                 damageTypeNotAllowed = false;
-                ((Player)entity).displayClientMessage(Component.literal("Allowed! Type: " + type.toString()), true);
+                //((Player)entity).displayClientMessage(Component.literal("Allowed! Type: " + type.toString()), true);
                 break;
             }
             //((Player)entity).displayClientMessage(Component.literal("disallowed Type: "+allowedDamageTypeCut + " Type: " + type.toString()), false);
         }
-        if (damageTypeNotAllowed) { ((Player)entity).displayClientMessage(Component.literal(type.toString()), false); return; }
-        float entitySize = ResizingUtils.getActualSize(entity);
-        if(entitySize < 8f){ return; }
+        if (damageTypeNotAllowed) { /*((Player)entity).displayClientMessage(Component.literal(type.toString()), false);*/ return; }
+
 
         //no hurt if amount is less than 0.5 damage(1/4th heart) after dividing by size
-        if (amount/entitySize <= 0.5 && entity instanceof Player) { cir.setReturnValue(false); }
+        if (amount/entitySize <= 0.5) { cir.setReturnValue(false); }
+    }
+
+    @Inject(method = "calculateFallDamage", at = @At("HEAD"), cancellable = true)
+    protected void fixDoubleScaledFallDamage(float fallDistance, float damageMultiplier, CallbackInfoReturnable<Integer> cir) {
+        if (!((Entity)(Object)this).getType().is(EntityTypeTags.FALL_DAMAGE_IMMUNE) && ResizingUtils.getSize(((LivingEntity)(Object)this)) != 1.0f) {
+            MobEffectInstance mobEffectInstance = ((LivingEntity)(Object)this).getEffect(MobEffects.JUMP);
+            float f = mobEffectInstance == null ? 0.0F : (float)(mobEffectInstance.getAmplifier() + 1);
+            cir.setReturnValue(Mth.ceil((fallDistance - 3.0F - f) * damageMultiplier * ResizingUtils.getSize(((LivingEntity)(Object)this))));
+        }
     }
 }

@@ -7,19 +7,14 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -28,8 +23,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import pichurose.stompandclimb.commands.GetSizeCommand;
@@ -194,7 +187,7 @@ public class StompAndClimb implements ModInitializer {
             }
         }
     }
-
+    /*
     public static void handleKeyPressClient(LocalPlayer player) {
         HitResult hitResult = Minecraft.getInstance().hitResult;
         int hitResultType;
@@ -234,7 +227,7 @@ public class StompAndClimb implements ModInitializer {
         buf.writeDouble(hitPos.y);
         buf.writeDouble(hitPos.z);
         ClientPlayNetworking.send(StompAndClimbNetworkingConstants.PICKUP_TELEPORT_PACKET, buf);
-    }
+    }*/
 
     public static Item registerItem(String string, Item item) {
         return registerItem(new ResourceLocation(MODID, string), item);
@@ -267,62 +260,8 @@ public class StompAndClimb implements ModInitializer {
             server.execute(() -> handleKeyPressServer(player, hitResultType, target, smallEnough, hitPos));
         });
 
-        ClientPlayNetworking.registerGlobalReceiver(StompAndClimbNetworkingConstants.CUSTOM_CARRY_POS_CLIENT_PACKET, (client, handler, buf, responseSender) -> {
-            double x = buf.readDouble();
-            double y = buf.readDouble();
-            double z = buf.readDouble();
-            boolean holdOutHand = buf.readBoolean();
-            boolean followBodyAngle = buf.readBoolean();
-            boolean invisiblePassengers = buf.readBoolean();
-            client.execute(() -> {
-                CustomCarryOffsetInterface customCarryOffsetInterface = (CustomCarryOffsetInterface) (client.player);
-                Objects.requireNonNull(customCarryOffsetInterface).stompandclimb_updateCustomCarryCache(x, y, z, holdOutHand, followBodyAngle, invisiblePassengers);
-            });
-        });
 
-        ClientPlayNetworking.registerGlobalReceiver(StompAndClimbNetworkingConstants.SIZE_CHANGE_CLIENT_PACKET, (client, handler, buf, responseSender) -> {
-            int targetId = buf.readInt();
-            float size = buf.readFloat();
 
-            if (client.player != null) {
-                //final Entity target = targetId != -1 ? client.player.getServer().getLevel(client.player.level().dimension()).getEntity(targetId) : null;
-                final Entity target = targetId != -1 ? Objects.requireNonNull(Objects.requireNonNull(Minecraft.getInstance().getSingleplayerServer()).getLevel(client.player.level().dimension())).getEntity(targetId) : null;
-                client.execute(() -> {
-                    if(target != null){
-                        ResizingUtils.setSize(target, size);
-                    }
-                });
-            }
-        });
-
-        ClientPlayNetworking.registerGlobalReceiver(StompAndClimbNetworkingConstants.SIZE_RESIZE_CLIENT_PACKET, (client, handler, buf, responseSender) -> {
-            int targetId = buf.readInt();
-            float size = buf.readFloat();
-
-            if (client.player != null) {
-                //final Entity target = targetId != -1 ? client.player.getServer().getLevel(client.player.level().dimension()).getEntity(targetId) : null;
-                final Entity target = targetId != -1 ? Objects.requireNonNull(Objects.requireNonNull(Minecraft.getInstance().getSingleplayerServer()).getLevel(client.player.level().dimension())).getEntity(targetId) : null;
-                client.execute(() -> {
-                    if(target != null){
-                        ResizingUtils.resizeInstant(target, size);
-                    }
-                });
-            }
-        });
-
-        ClientPlayNetworking.registerGlobalReceiver(StompAndClimbNetworkingConstants.UPDATE_IS_ALLOWED_TO_CLIMB_CLIENT_PACKET, (client, handler, buf, responseSender) -> {
-            boolean isAllowedToClimb = buf.readBoolean();
-
-            if (client.player != null) {
-                //final Entity target = targetId != -1 ? client.player.getServer().getLevel(client.player.level().dimension()).getEntity(targetId) : null;
-                client.execute(() -> {
-                    if(client.player != null){
-                        ClientLocationInterface clientLocationInterface = (ClientLocationInterface)client.player;
-                        clientLocationInterface.stompandclimb_updateIsAllowedToClimb(isAllowedToClimb);
-                    }
-                });
-            }
-        });
 
         //noinspection CodeBlock2Expr
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {

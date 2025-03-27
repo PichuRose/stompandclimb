@@ -3,14 +3,13 @@ package pichurose.stompandclimb.mixins;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.EntityTypeTags;
-import net.minecraft.util.Mth;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.entity.monster.Endermite;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Minecart;
@@ -22,8 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import pichurose.stompandclimb.StompAndClimb;
@@ -32,6 +30,8 @@ import pichurose.stompandclimb.items.Armor.SoftSocksItem;
 import pichurose.stompandclimb.utils.FlanUtils;
 import pichurose.stompandclimb.utils.ResizingUtils;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Mixin(LivingEntity.class)
@@ -41,6 +41,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     @Shadow private Optional<BlockPos> lastClimbablePos;
+
 
     @Unique
     public Vec3 playerVec = Vec3.ZERO;
@@ -369,47 +370,133 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         ci.cancel();
     }
 
-
-
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
-    private void disableScreenMovement(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        DamageType type = source.type();
-        LivingEntity entity = (LivingEntity) (Object) this;
-        float entitySize = ResizingUtils.getActualSize(entity);
-        if(entitySize < 4f){ return; }
-
-        //if(!(entity instanceof Player)){ return; }
-
-
-        String[] allowedDamageTypes = {
-                "MOB", "MOB_ATTACK_NO_AGGRO", "MOB_PROJECTILE",
-                "HOTFLOOR", "CACTUS", "LAVA", "SWEETBERRYBUSH",
-                "THORNS", "TRIDENT", "ARROW", "FIREBALL", "CAMPFIRE"
-        };
-        boolean damageTypeNotAllowed = true;
-        for(String allowedDamageType : allowedDamageTypes){
-            //.substring(46,allowedDamageType.length()-1)
-            String allowedDamageTypeCut = allowedDamageType.toLowerCase();
-            if(type.toString().toLowerCase().contains(allowedDamageTypeCut)){
-                damageTypeNotAllowed = false;
-                //((Player)entity).displayClientMessage(Component.literal("Allowed! Type: " + type.toString()), true);
-                break;
-            }
-            //((Player)entity).displayClientMessage(Component.literal("disallowed Type: "+allowedDamageTypeCut + " Type: " + type.toString()), false);
+    public void hurt(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        if (amount == 0) {
+            cir.cancel();
+            return;
         }
-        if (damageTypeNotAllowed) { /*((Player)entity).displayClientMessage(Component.literal(type.toString()), false);*/ return; }
+        LivingEntity entity = (LivingEntity) (Object) this;
 
+        float entitySize = ResizingUtils.getActualSize(entity);
+        Entity sourceEntity = source.getEntity();
+        Entity sourceDirectEntity = source.getDirectEntity();
+        float sourceEntitySize = -1;
+        float sourceDirectEntitySize = -1;
+        float sizeDifferenceThisOverThem = 1;
+        String typeID = source.type().msgId();
 
-        //no hurt if amount is less than 0.5 damage(1/4th heart) after dividing by size
-        if (amount/entitySize <= 0.5) { cir.setReturnValue(false); }
+        if (sourceDirectEntity != null) {
+            sourceDirectEntitySize = ResizingUtils.getActualSize(sourceDirectEntity);
+            sizeDifferenceThisOverThem = entitySize / sourceDirectEntitySize;
+            if(!typeID.equals("fireball") && sizeDifferenceThisOverThem<=0.5 && sourceDirectEntity instanceof Blaze){
+                return;
+            }
+        } else if (sourceEntity != null) {
+            sourceEntitySize = ResizingUtils.getActualSize(sourceEntity);
+            sizeDifferenceThisOverThem = entitySize / sourceEntitySize;
+            if(!typeID.equals("fireball") && sizeDifferenceThisOverThem<=0.5 && sourceEntity instanceof Blaze){
+                return;
+            }
+        } else {
+            sizeDifferenceThisOverThem = entitySize;
+        }
+
+        if (sizeDifferenceThisOverThem != 1) {
+            amount = adjustAmountBasedOnSize(amount, sizeDifferenceThisOverThem, typeID);
+        }
+
+        if (amount == 0) {
+            cir.cancel();
+            return;
+        }
     }
 
-    @Inject(method = "calculateFallDamage", at = @At("HEAD"), cancellable = true)
-    protected void fixDoubleScaledFallDamage(float fallDistance, float damageMultiplier, CallbackInfoReturnable<Integer> cir) {
-        if (!((Entity)(Object)this).getType().is(EntityTypeTags.FALL_DAMAGE_IMMUNE) && ResizingUtils.getSize(((LivingEntity)(Object)this)) != 1.0f) {
-            MobEffectInstance mobEffectInstance = ((LivingEntity)(Object)this).getEffect(MobEffects.JUMP);
-            float f = mobEffectInstance == null ? 0.0F : (float)(mobEffectInstance.getAmplifier() + 1);
-            cir.setReturnValue(Mth.ceil((fallDistance - 3.0F - f) * damageMultiplier * ResizingUtils.getSize(((LivingEntity)(Object)this))));
+    @ModifyVariable(method = "hurt", at = @At("HEAD"), argsOnly = true, ordinal = 0)
+    private float modifyAmount(float amount, DamageSource source) {
+        if (amount == 0) {
+            return amount;
         }
+        LivingEntity entity = (LivingEntity) (Object) this;
+
+        float entitySize = ResizingUtils.getActualSize(entity);
+        Entity sourceEntity = source.getEntity();
+        Entity sourceDirectEntity = source.getDirectEntity();
+        float sourceEntitySize = -1;
+        float sourceDirectEntitySize = -1;
+        float sizeDifferenceThisOverThem = 1;
+        String typeID = source.type().msgId();
+
+        if (sourceDirectEntity != null) {
+            sourceDirectEntitySize = ResizingUtils.getActualSize(sourceDirectEntity);
+            sizeDifferenceThisOverThem = entitySize / sourceDirectEntitySize;
+            if(!typeID.equals("fireball") && sizeDifferenceThisOverThem<=0.5 && sourceDirectEntity instanceof Blaze){
+                return 0;
+            }
+        } else if (sourceEntity != null) {
+            sourceEntitySize = ResizingUtils.getActualSize(sourceEntity);
+            sizeDifferenceThisOverThem = entitySize / sourceEntitySize;
+            if(!typeID.equals("fireball") && sizeDifferenceThisOverThem<=0.5 && sourceEntity instanceof Blaze){
+                return 0;
+            }
+        } else {
+            sizeDifferenceThisOverThem = entitySize;
+        }
+
+        if (sizeDifferenceThisOverThem != 1) {
+            amount = adjustAmountBasedOnSize(amount, sizeDifferenceThisOverThem, typeID);
+        }
+
+        return amount;
+    }
+
+    @Unique
+    private float adjustAmountBasedOnSize(float amount, float sizeDifference, String typeID) {
+        if(sizeDifference > 1){
+
+            List<String> divideNoLimit = Arrays.asList("lightningBolt", "sonic_boom", "thrown", "witherSkull");
+            List<String> divideImmunityIfBigEnough = Arrays.asList("cactus", "mob", "sting", "sweetBerryBush", "thorns", "player", "arrow", "inFire", "explosion.player", "spit", "stalagmite", "explosion", "anvil", "fallingBlock", "trident", "onFire", "fallingStalactite", "fireball", "fireworks", "hotFloor", "inWall", "lava");
+            if (divideImmunityIfBigEnough.contains(typeID)) {
+                amount /= sizeDifference;
+                if(amount < 0.5){
+                    amount = 0;
+                }
+            }
+            else if(divideNoLimit.contains(typeID)){
+                amount /= sizeDifference;
+                if(amount < 0.01){
+                    amount = 0;
+                }
+            }
+        }
+        else{
+            List<String> multiplyNoLimit = Arrays.asList("arrow", "explosion", "anvil", "fallingBlock", "fallingStalactite", "fireball", "fireworks", "hotFloor", "inFire", "lava", "lightningBolt", "onFire", "player", "sonic_boom", "spit", "thrown", "trident", "witherSkull");
+            List<String> multiplyImmunityIfSmallEnoughPoke = Arrays.asList("cactus", "sting", "sweetBerryBush", "thorns");
+            List<String> multiplyImmunityIfSmallEnoughMob = Arrays.asList("mob");
+            List<String> divideNoLimit = Arrays.asList("cramming", "flyIntoWall");
+            //if divideNoLimit contains typeID
+            if (divideNoLimit.contains(typeID)) {
+                amount *= sizeDifference;
+                if(amount < 0.01){
+                    amount = 0;
+                }
+            }
+            else if(multiplyImmunityIfSmallEnoughMob.contains(typeID)){
+                amount /= sizeDifference;
+                if(sizeDifference <= 0.01){
+                    amount = 0;
+                }
+            }
+            else if(multiplyImmunityIfSmallEnoughPoke.contains(typeID)){
+                amount = (float) Math.sqrt(amount / sizeDifference);
+                if(sizeDifference <= 0.0625){
+                    amount = 0;
+                }
+            }
+            else if(multiplyNoLimit.contains(typeID)){
+                amount /= sizeDifference;
+            }
+        }
+        return amount;
     }
 }

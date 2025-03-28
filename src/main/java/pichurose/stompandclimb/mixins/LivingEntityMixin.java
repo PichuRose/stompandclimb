@@ -14,6 +14,7 @@ import net.minecraft.world.entity.monster.Endermite;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -384,17 +385,26 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         float sourceEntitySize = -1;
         float sourceDirectEntitySize = -1;
         float sizeDifferenceThisOverThem = 1;
+        boolean isSourceHoldingSoftItemInMainHand = false;
         String typeID = source.type().msgId();
 
         if (sourceDirectEntity != null) {
             sourceDirectEntitySize = ResizingUtils.getActualSize(sourceDirectEntity);
             sizeDifferenceThisOverThem = entitySize / sourceDirectEntitySize;
+
+            Item heldItem = ((LivingEntity) sourceDirectEntity).getMainHandItem().getItem();
+            if(StompAndClimb.softItems.contains(heldItem)) { isSourceHoldingSoftItemInMainHand = true; }
+
             if(!typeID.equals("fireball") && sizeDifferenceThisOverThem<=0.5 && sourceDirectEntity instanceof Blaze){
                 return;
             }
         } else if (sourceEntity != null) {
             sourceEntitySize = ResizingUtils.getActualSize(sourceEntity);
             sizeDifferenceThisOverThem = entitySize / sourceEntitySize;
+
+            Item heldItem = ((LivingEntity) sourceEntity).getMainHandItem().getItem();
+            if(StompAndClimb.softItems.contains(heldItem)) { isSourceHoldingSoftItemInMainHand = true; }
+
             if(!typeID.equals("fireball") && sizeDifferenceThisOverThem<=0.5 && sourceEntity instanceof Blaze){
                 return;
             }
@@ -403,7 +413,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         }
 
         if (sizeDifferenceThisOverThem != 1) {
-            amount = adjustAmountBasedOnSize(amount, sizeDifferenceThisOverThem, typeID);
+            amount = adjustAmountBasedOnSize(amount, sizeDifferenceThisOverThem, typeID, isSourceHoldingSoftItemInMainHand);
         }
 
         if (amount == 0) {
@@ -418,24 +428,32 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
             return amount;
         }
         LivingEntity entity = (LivingEntity) (Object) this;
-
         float entitySize = ResizingUtils.getActualSize(entity);
         Entity sourceEntity = source.getEntity();
         Entity sourceDirectEntity = source.getDirectEntity();
         float sourceEntitySize = -1;
         float sourceDirectEntitySize = -1;
         float sizeDifferenceThisOverThem = 1;
+        boolean isSourceHoldingSoftItemInMainHand = false;
         String typeID = source.type().msgId();
 
         if (sourceDirectEntity != null) {
             sourceDirectEntitySize = ResizingUtils.getActualSize(sourceDirectEntity);
             sizeDifferenceThisOverThem = entitySize / sourceDirectEntitySize;
+
+            Item heldItem = ((LivingEntity) sourceDirectEntity).getMainHandItem().getItem();
+            if(StompAndClimb.softItems.contains(heldItem)) { isSourceHoldingSoftItemInMainHand = true; }
+
             if(!typeID.equals("fireball") && sizeDifferenceThisOverThem<=0.5 && sourceDirectEntity instanceof Blaze){
                 return 0;
             }
         } else if (sourceEntity != null) {
             sourceEntitySize = ResizingUtils.getActualSize(sourceEntity);
             sizeDifferenceThisOverThem = entitySize / sourceEntitySize;
+
+            Item heldItem = ((LivingEntity) sourceEntity).getMainHandItem().getItem();
+            if(StompAndClimb.softItems.contains(heldItem)) { isSourceHoldingSoftItemInMainHand = true; }
+
             if(!typeID.equals("fireball") && sizeDifferenceThisOverThem<=0.5 && sourceEntity instanceof Blaze){
                 return 0;
             }
@@ -444,18 +462,19 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         }
 
         if (sizeDifferenceThisOverThem != 1) {
-            amount = adjustAmountBasedOnSize(amount, sizeDifferenceThisOverThem, typeID);
+            amount = adjustAmountBasedOnSize(amount, sizeDifferenceThisOverThem, typeID, isSourceHoldingSoftItemInMainHand);
         }
 
         return amount;
     }
 
     @Unique
-    private float adjustAmountBasedOnSize(float amount, float sizeDifference, String typeID) {
+    private float adjustAmountBasedOnSize(float amount, float sizeDifference, String typeID, boolean softItemHeld) {
         if(sizeDifference > 1){
 
             List<String> divideNoLimit = Arrays.asList("lightningBolt", "sonic_boom", "thrown", "witherSkull");
-            List<String> divideImmunityIfBigEnough = Arrays.asList("cactus", "mob", "sting", "sweetBerryBush", "thorns", "player", "arrow", "inFire", "explosion.player", "spit", "stalagmite", "explosion", "anvil", "fallingBlock", "trident", "onFire", "fallingStalactite", "fireball", "fireworks", "hotFloor", "inWall", "lava");
+            List<String> divideImmunityIfBigEnough = Arrays.asList("cactus", "mob", "sting", "sweetBerryBush", "thorns", "player", "arrow", "inFire", "explosion.player", "spit", "stalagmite", "explosion", "anvil", "fallingBlock", "trident", "fallingStalactite", "fireball", "fireworks", "hotFloor", "inWall", "lava");
+            List<String> divideSquareRoot = List.of("onFire");
             if (divideImmunityIfBigEnough.contains(typeID)) {
                 amount /= sizeDifference;
                 if(amount < 0.5){
@@ -468,11 +487,18 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
                     amount = 0;
                 }
             }
+            else if(divideSquareRoot.contains(typeID)){
+                amount = (float) Math.sqrt(amount / sizeDifference);
+                if(amount < 0.01){
+                    amount = 0;
+                }
+            }
         }
         else{
-            List<String> multiplyNoLimit = Arrays.asList("arrow", "explosion", "anvil", "fallingBlock", "fallingStalactite", "fireball", "fireworks", "hotFloor", "inFire", "lava", "lightningBolt", "onFire", "player", "sonic_boom", "spit", "thrown", "trident", "witherSkull");
+            List<String> multiplyNoLimit = Arrays.asList("arrow", "explosion", "anvil", "fallingBlock", "fallingStalactite", "fireball", "fireworks", "hotFloor", "inFire", "lava", "lightningBolt", "player", "sonic_boom", "spit", "thrown", "trident", "witherSkull");
             List<String> multiplyImmunityIfSmallEnoughPoke = Arrays.asList("cactus", "sting", "sweetBerryBush", "thorns");
-            List<String> multiplyImmunityIfSmallEnoughMob = Arrays.asList("mob");
+            List<String> multiplyImmunityIfSmallEnoughMob = List.of("mob");
+            List<String> multiplyLimit1 = List.of("onFire");
             List<String> divideNoLimit = Arrays.asList("cramming", "flyIntoWall");
             //if divideNoLimit contains typeID
             if (divideNoLimit.contains(typeID)) {
@@ -483,6 +509,9 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
             }
             else if(multiplyImmunityIfSmallEnoughMob.contains(typeID)){
                 amount /= sizeDifference;
+                if(softItemHeld){
+                    amount /= 4f;
+                }
                 if(sizeDifference <= 0.01){
                     amount = 0;
                 }
@@ -495,6 +524,15 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
             }
             else if(multiplyNoLimit.contains(typeID)){
                 amount /= sizeDifference;
+                if(softItemHeld && typeID.equals("player")){
+                    amount /= 4f;
+                }
+            }
+            else if(multiplyLimit1.contains(typeID)){
+                amount /= sizeDifference;
+                if(amount > 1){
+                    amount = 1;
+                }
             }
         }
         return amount;

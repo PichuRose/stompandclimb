@@ -44,6 +44,8 @@ import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.PehkuiSupport;
 import pichurose.stompandclimb.utils.ResizingUtils;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class StompAndClimb implements ModInitializer {
@@ -53,6 +55,14 @@ public class StompAndClimb implements ModInitializer {
 
     public static final ThreadLocal<Boolean> threadLocal0 = new ThreadLocal<>();
     public static final ThreadLocal<Boolean> threadLocal1 = new ThreadLocal<>();
+
+
+
+
+
+
+
+
 
     public static final Item HARD_HAT = registerItem("hard_hat", new ArmorItem(new HardHatMaterial(), ArmorItem.Type.HELMET, new Item.Properties()));
     public static final Item SOFT_SOCKS = registerItem("soft_socks", new SoftSocksItem(new Item.Properties()));
@@ -103,6 +113,10 @@ public class StompAndClimb implements ModInitializer {
     public static final MobEffect CURSE_OF_SHRINKING = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "curse_of_shrinking"), new CurseOfShrinkingEffect());
     public static final MobEffect GROW_EFFECT = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "grow_effect"), new GrowEffect());
     public static final MobEffect SHRINK_EFFECT = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "shrink_effect"), new ShrinkEffect());
+
+    //wool, carpet, moss, moss carpet, sand, soul sand, red sand, mud, clay, snow, snow block, leaves, pink petals, bamboo, sugar cane, slime block, honey block, cobweb, lightning rod, lever, tripwire hook, string, wooden shovel, golden sword, brush, lead, snowball, stick, bone, feather, wheat, slime_ball, scute, clay ball, honey comb, blaze rod, paper, magma cream, phantom membrane, soft socks
+    public static final List<Item> softItems = Arrays.asList(Items.WHITE_WOOL, Items.ORANGE_WOOL, Items.MAGENTA_WOOL, Items.LIGHT_BLUE_WOOL, Items.YELLOW_WOOL, Items.LIME_WOOL, Items.PINK_WOOL, Items.GRAY_WOOL, Items.LIGHT_GRAY_WOOL, Items.CYAN_WOOL, Items.PURPLE_WOOL, Items.BLUE_WOOL, Items.BROWN_WOOL, Items.GREEN_WOOL, Items.RED_WOOL, Items.BLACK_WOOL, Items.WHITE_CARPET, Items.ORANGE_CARPET, Items.MAGENTA_CARPET, Items.LIGHT_BLUE_CARPET, Items.YELLOW_CARPET, Items.LIME_CARPET, Items.PINK_CARPET, Items.GRAY_CARPET, Items.LIGHT_GRAY_CARPET, Items.CYAN_CARPET, Items.PURPLE_CARPET, Items.BLUE_CARPET, Items.BROWN_CARPET, Items.GREEN_CARPET, Items.RED_CARPET, Items.BLACK_CARPET, Items.MOSS_BLOCK, Items.MOSS_CARPET, Items.SAND, Items.SOUL_SAND, Items.RED_SAND, Items.DIRT, Items.CLAY, Items.SNOW, Items.SNOW_BLOCK, Items.OAK_LEAVES, Items.SPRUCE_LEAVES, Items.BIRCH_LEAVES, Items.JUNGLE_LEAVES, Items.ACACIA_LEAVES, Items.DARK_OAK_LEAVES, Items.MANGROVE_LEAVES, Items.PINK_TULIP, Items.BAMBOO, Items.SUGAR_CANE, Items.SLIME_BLOCK, Items.HONEY_BLOCK, Items.COBWEB, Items.LIGHTNING_ROD, Items.LEVER, Items.TRIPWIRE_HOOK, Items.STRING, Items.WOODEN_SHOVEL, Items.GOLDEN_SWORD, Items.BRUSH, Items.LEAD, Items.SNOWBALL, Items.STICK, Items.BONE, Items.FEATHER, Items.WHEAT, Items.SLIME_BALL, Items.SCUTE, Items.CLAY_BALL, Items.HONEYCOMB, Items.BLAZE_ROD, Items.PAPER, Items.MAGMA_CREAM, Items.PHANTOM_MEMBRANE, SOFT_SOCKS);
+    public static final List<Item> stickyItems = Arrays.asList();
 
     @SuppressWarnings("unused")
     private static final CreativeModeTab ITEM_GROUP = Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, new ResourceLocation(MODID, "ringsandgear"), FabricItemGroup.builder()

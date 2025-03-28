@@ -392,8 +392,11 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
             sourceDirectEntitySize = ResizingUtils.getActualSize(sourceDirectEntity);
             sizeDifferenceThisOverThem = entitySize / sourceDirectEntitySize;
 
-            Item heldItem = ((LivingEntity) sourceDirectEntity).getMainHandItem().getItem();
-            if(StompAndClimb.softItems.contains(heldItem)) { isSourceHoldingSoftItemInMainHand = true; }
+            if(sourceDirectEntity instanceof LivingEntity){
+                Item heldItem = ((LivingEntity) sourceDirectEntity).getMainHandItem().getItem();
+                if(StompAndClimb.softItems.contains(heldItem)) { isSourceHoldingSoftItemInMainHand = true; }
+            }
+
 
             if(!typeID.equals("fireball") && sizeDifferenceThisOverThem<=0.5 && sourceDirectEntity instanceof Blaze){
                 return;
@@ -402,8 +405,11 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
             sourceEntitySize = ResizingUtils.getActualSize(sourceEntity);
             sizeDifferenceThisOverThem = entitySize / sourceEntitySize;
 
-            Item heldItem = ((LivingEntity) sourceEntity).getMainHandItem().getItem();
-            if(StompAndClimb.softItems.contains(heldItem)) { isSourceHoldingSoftItemInMainHand = true; }
+            if(sourceEntity instanceof LivingEntity){
+                Item heldItem = ((LivingEntity) sourceEntity).getMainHandItem().getItem();
+                if(StompAndClimb.softItems.contains(heldItem)) { isSourceHoldingSoftItemInMainHand = true; }
+            }
+
 
             if(!typeID.equals("fireball") && sizeDifferenceThisOverThem<=0.5 && sourceEntity instanceof Blaze){
                 return;
@@ -441,8 +447,10 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
             sourceDirectEntitySize = ResizingUtils.getActualSize(sourceDirectEntity);
             sizeDifferenceThisOverThem = entitySize / sourceDirectEntitySize;
 
-            Item heldItem = ((LivingEntity) sourceDirectEntity).getMainHandItem().getItem();
-            if(StompAndClimb.softItems.contains(heldItem)) { isSourceHoldingSoftItemInMainHand = true; }
+            if(sourceDirectEntity instanceof LivingEntity){
+                Item heldItem = ((LivingEntity) sourceDirectEntity).getMainHandItem().getItem();
+                if(StompAndClimb.softItems.contains(heldItem)) { isSourceHoldingSoftItemInMainHand = true; }
+            }
 
             if(!typeID.equals("fireball") && sizeDifferenceThisOverThem<=0.5 && sourceDirectEntity instanceof Blaze){
                 return 0;
@@ -451,8 +459,11 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
             sourceEntitySize = ResizingUtils.getActualSize(sourceEntity);
             sizeDifferenceThisOverThem = entitySize / sourceEntitySize;
 
-            Item heldItem = ((LivingEntity) sourceEntity).getMainHandItem().getItem();
-            if(StompAndClimb.softItems.contains(heldItem)) { isSourceHoldingSoftItemInMainHand = true; }
+            if(sourceEntity instanceof LivingEntity){
+                Item heldItem = ((LivingEntity) sourceEntity).getMainHandItem().getItem();
+                if(StompAndClimb.softItems.contains(heldItem)) { isSourceHoldingSoftItemInMainHand = true; }
+            }
+
 
             if(!typeID.equals("fireball") && sizeDifferenceThisOverThem<=0.5 && sourceEntity instanceof Blaze){
                 return 0;

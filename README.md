@@ -2,6 +2,9 @@ Stomp & Climb is an addon for Pehkui. It offers a multitude of items, including 
 
 I also have included a mod of a friend of mine, known as HyperCollider. This mod optimizes collision enough that you can become size 32 or even 64 if you so wish to push it. This is much higher than the norm of size 8 being feasible with Pehkui. Even with all of this, I would advise changing the config.json of your Pehkui mod.
 
+### CRASHES WITH LITHIUM, HERE IS FIX: https://github.com/PichuRose/stompandclimb/issues/3
+
+
 Config I used to take the screenshot of me being 1024x:  
 <div class="spoiler">{
 	"minimumCameraDepth": 3.051850947599719E-5,

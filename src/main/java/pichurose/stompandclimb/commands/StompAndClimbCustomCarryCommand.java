@@ -82,5 +82,19 @@ public class StompAndClimbCustomCarryCommand {
         buf.writeBoolean(invisiblePassengers);
         ServerPlayNetworking.send(player, StompAndClimbNetworkingConstants.CUSTOM_CARRY_POS_CLIENT_PACKET, buf);
 
+        for (ServerPlayer otherPlayer : Objects.requireNonNull(player.level().getServer()).getPlayerList().getPlayers()) {
+            if (otherPlayer != player) {
+                FriendlyByteBuf buf2 = PacketByteBufs.create();
+                buf2.writeUtf(player.getUUID().toString());
+                buf2.writeDouble(x);
+                buf2.writeDouble(y);
+                buf2.writeDouble(z);
+                buf2.writeBoolean(holdOutHand);
+                buf2.writeBoolean(followBodyAngle);
+                buf2.writeBoolean(invisiblePassengers);
+                ServerPlayNetworking.send(otherPlayer, StompAndClimbNetworkingConstants.CUSTOM_CARRY_POS_SENDALL_PACKET, buf2);
+            }
+        }
+
     }
 }

@@ -1,9 +1,7 @@
 package pichurose.stompandclimb.mixins;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -11,6 +9,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.entity.monster.Endermite;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.item.ArmorItem;
@@ -34,6 +33,9 @@ import pichurose.stompandclimb.utils.ResizingUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin implements ClientLocationInterface {
@@ -210,7 +212,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
                             bootsArmor = 1;
                         }
                         double heightDiffPow2 = Math.pow(heightDiffDimensions, 2);
-                        double armorPtsSqrt = Math.sqrt(armorpoints);
+                        double armorPtsSqrt = sqrt(armorpoints);
                         float damageFull = (float) (heightDiffPow2 / armorPtsSqrt) * bootsArmor / 2f;
 
                         float speedDamageMultiplier;
@@ -371,7 +373,8 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         ci.cancel();
     }
 
-    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
+    @SuppressWarnings("UnusedAssignment")
+    @Inject(method = "hurt", at = @At("HEAD"))
     public void hurt(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (amount == 0) {
             cir.cancel();
@@ -424,10 +427,12 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
 
         if (amount == 0) {
             cir.cancel();
+            //noinspection UnnecessaryReturnStatement
             return;
         }
     }
 
+    @SuppressWarnings("UnusedAssignment")
     @ModifyVariable(method = "hurt", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private float modifyAmount(float amount, DamageSource source) {
         if (amount == 0) {
@@ -499,7 +504,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
                 }
             }
             else if(divideSquareRoot.contains(typeID)){
-                amount = (float) Math.sqrt(amount / sizeDifference);
+                amount = (float) sqrt(amount / sizeDifference);
                 if(amount < 0.01){
                     amount = 0;
                 }
@@ -528,7 +533,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
                 }
             }
             else if(multiplyImmunityIfSmallEnoughPoke.contains(typeID)){
-                amount = (float) Math.sqrt(amount / sizeDifference);
+                amount = (float) sqrt(amount / sizeDifference);
                 if(sizeDifference <= 0.0625){
                     amount = 0;
                 }
@@ -548,4 +553,8 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         }
         return amount;
     }
+
+
+
+
 }

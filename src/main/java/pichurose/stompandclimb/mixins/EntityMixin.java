@@ -1,5 +1,6 @@
 package pichurose.stompandclimb.mixins;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -101,8 +102,7 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
 
             positionUpdater.accept(passenger, this.getX() + offsetX, offsetY, this.getZ() + offsetZ);
 
-
-            //((PlayerEntity)(Object)this).sendMessage(Text.literal(((Entity)(Object)this).getWorld().isClient + "Offsets - Left/Right: " + leftRightOffset + ", Up/Down: " + upDownOffset + ", Forward/Back: " + forwardBackOffset));
+            //((Player)(Object)this).displayClientMessage(Component.literal(((Entity)(Object)this).level().isClientSide + "\tOffsets - Left/Right: " + leftRightOffset + ", Up/Down: " + upDownOffset + ", Forward/Back: " + forwardBackOffset),false);
 
             ci.cancel();
         }

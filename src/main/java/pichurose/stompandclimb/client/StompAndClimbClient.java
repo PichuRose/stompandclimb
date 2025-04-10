@@ -12,6 +12,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -23,6 +24,7 @@ import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.ResizingUtils;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class StompAndClimbClient implements ClientModInitializer {
     private static KeyMapping pickupPlacedown;
@@ -55,6 +57,21 @@ public class StompAndClimbClient implements ClientModInitializer {
             });
         });
 
+        ClientPlayNetworking.registerGlobalReceiver(StompAndClimbNetworkingConstants.CUSTOM_CARRY_POS_SENDALL_PACKET, (client, handler, buf, responseSender) -> {
+            String uuid = buf.readUtf();
+            double x = buf.readDouble();
+            double y = buf.readDouble();
+            double z = buf.readDouble();
+            boolean holdOutHand = buf.readBoolean();
+            boolean followBodyAngle = buf.readBoolean();
+            boolean invisiblePassengers = buf.readBoolean();
+            client.execute(() -> {
+                assert client.level != null;
+                CustomCarryOffsetInterface customCarryOffsetInterface = (CustomCarryOffsetInterface) (client.level.getPlayerByUUID(UUID.fromString(uuid)));
+                Objects.requireNonNull(customCarryOffsetInterface).stompandclimb_updateCustomCarryCache(x, y, z, holdOutHand, followBodyAngle, invisiblePassengers);
+            });
+        });
+
 
         ClientPlayNetworking.registerGlobalReceiver(StompAndClimbNetworkingConstants.SIZE_CHANGE_CLIENT_PACKET, (client, handler, buf, responseSender) -> {
             int targetId = buf.readInt();
@@ -63,18 +80,16 @@ public class StompAndClimbClient implements ClientModInitializer {
             if (client.player != null) {
                 //final Entity target = targetId != -1 ? client.player.getServer().getLevel(client.player.level().dimension()).getEntity(targetId) : null;
                 final Minecraft minecraftInstance = Minecraft.getInstance();
-                if (minecraftInstance != null){
-                    final var singleplayerServer = minecraftInstance.getSingleplayerServer();
-                    if (singleplayerServer != null) {
-                        final var level = singleplayerServer.getLevel(client.player.level().dimension());
-                        if (level == null){
-                            final Entity target = targetId != -1 ? level.getEntity(targetId) : null;
-                            client.execute(() -> {
-                                if(target != null){
-                                    ResizingUtils.setSize(target, size);
-                                }
-                            });
-                        }
+                final var singleplayerServer = minecraftInstance.getSingleplayerServer();
+                if (singleplayerServer != null) {
+                    final var level = singleplayerServer.getLevel(client.player.level().dimension());
+                    if (level != null){
+                        final Entity target = targetId != -1 ? level.getEntity(targetId) : null;
+                        client.execute(() -> {
+                            if(target != null){
+                                ResizingUtils.setSize(target, size);
+                            }
+                        });
                     }
                 }
             }
@@ -87,18 +102,16 @@ public class StompAndClimbClient implements ClientModInitializer {
             if (client.player != null) {
                 //final Entity target = targetId != -1 ? client.player.getServer().getLevel(client.player.level().dimension()).getEntity(targetId) : null;
                 final Minecraft minecraftInstance = Minecraft.getInstance();
-                if (minecraftInstance != null){
-                    final var singleplayerServer = minecraftInstance.getSingleplayerServer();
-                    if (singleplayerServer != null) {
-                        final var level = singleplayerServer.getLevel(client.player.level().dimension());
-                        if (level == null){
-                            final Entity target = targetId != -1 ? level.getEntity(targetId) : null;
-                            client.execute(() -> {
-                                if(target != null){
-                                    ResizingUtils.setSize(target, size);
-                                }
-                            });
-                        }
+                final var singleplayerServer = minecraftInstance.getSingleplayerServer();
+                if (singleplayerServer != null) {
+                    final var level = singleplayerServer.getLevel(client.player.level().dimension());
+                    if (level != null){
+                        final Entity target = targetId != -1 ? level.getEntity(targetId) : null;
+                        client.execute(() -> {
+                            if(target != null){
+                                ResizingUtils.setSize(target, size);
+                            }
+                        });
                     }
                 }
             }

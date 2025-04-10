@@ -15,15 +15,21 @@ import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.FlanUtils;
 import pichurose.stompandclimb.utils.ResizingUtils;
 
-public class OmniCollarItem extends Item {
-    private float SIZE = 1;
+import java.util.HashMap;
+import java.util.UUID;
 
+public class OmniCollarItem extends Item {
+
+    private final HashMap<UUID, Float> sizeMap = new HashMap<>();
     public OmniCollarItem(Item.Properties settings) {
         super(settings);
     }
 
-    public void setSIZE(float SIZE) {
-        this.SIZE = SIZE;
+    public void setSIZE(UUID uuid, float SIZE) {
+        sizeMap.put(uuid, SIZE);
+    }
+    public float getSIZE(UUID uuid){
+        return sizeMap.getOrDefault(uuid,1f);
     }
 
     @Override
@@ -35,9 +41,9 @@ public class OmniCollarItem extends Item {
         if(user.getCooldowns().isOnCooldown(this)){
             return super.interactLivingEntity(stack, user, entity, hand);
         }
-
-        if(ResizingUtils.getSize(entity) != SIZE){
-            ResizingUtils.setSize(entity, SIZE);
+        UUID uuid = user.getUUID();
+        if(ResizingUtils.getSize(entity) != getSIZE(uuid)){
+            ResizingUtils.setSize(entity, getSIZE(uuid));
             if(entity instanceof Player){
                 user.getCooldowns().addCooldown(this, 200);
             }
@@ -46,7 +52,7 @@ public class OmniCollarItem extends Item {
             }
             FriendlyByteBuf buf = PacketByteBufs.create();
             buf.writeInt(entity.getId());
-            buf.writeFloat(SIZE);
+            buf.writeFloat(getSIZE(uuid));
             if (user instanceof ServerPlayer) {
                 ServerPlayNetworking.send((ServerPlayer) user, StompAndClimbNetworkingConstants.SIZE_CHANGE_CLIENT_PACKET, buf);
             }

@@ -15,16 +15,23 @@ import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.FlanUtils;
 import pichurose.stompandclimb.utils.ResizingUtils;
 
-public class OmniRingItem extends Item{
-    private float SIZE = 1;
+import java.util.HashMap;
+import java.util.UUID;
 
+public class OmniRingItem extends Item{
+    //private float SIZE = 1;
+    private final HashMap<UUID, Float> sizeMap = new HashMap<>();
     public OmniRingItem(Item.Properties settings) {
         super(settings);
     }
 
-    public void setSIZE(float SIZE) {
-        this.SIZE = SIZE;
+    public void setSIZE(UUID uuid, float SIZE) {
+        sizeMap.put(uuid, SIZE);
     }
+    public float getSIZE(UUID uuid){
+        return sizeMap.getOrDefault(uuid,1f);
+    }
+
 
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
@@ -33,13 +40,14 @@ public class OmniRingItem extends Item{
         if(user.getCooldowns().isOnCooldown(this)){
             return super.use(world, user, hand);
         }
+        UUID uuid = user.getUUID();
         //LOGGER.debug("RingItem used on " + (world.isClientSide ? "client" : "server"));
-        if(ResizingUtils.getSize(user) != SIZE){
-            ResizingUtils.setSize(user, SIZE);
+        if(ResizingUtils.getSize(user) != getSIZE(uuid)){
+            ResizingUtils.setSize(user, getSIZE(uuid));
             user.getCooldowns().addCooldown(this, 20);
             FriendlyByteBuf buf = PacketByteBufs.create();
             buf.writeInt(user.getId());
-            buf.writeFloat(SIZE);
+            buf.writeFloat(getSIZE(uuid));
             ServerPlayNetworking.send((ServerPlayer) user, StompAndClimbNetworkingConstants.SIZE_CHANGE_CLIENT_PACKET, buf);
         }
         return super.use(world, user, hand);

@@ -116,7 +116,7 @@ public class StompAndClimb implements ModInitializer {
 
     //wool, carpet, moss, moss carpet, sand, soul sand, red sand, mud, clay, snow, snow block, leaves, pink petals, bamboo, sugar cane, slime block, honey block, cobweb, lightning rod, lever, tripwire hook, string, wooden shovel, golden sword, brush, lead, snowball, stick, bone, feather, wheat, slime_ball, scute, clay ball, honey comb, blaze rod, paper, magma cream, phantom membrane, soft socks
     public static final List<Item> softItems = Arrays.asList(Items.WHITE_WOOL, Items.ORANGE_WOOL, Items.MAGENTA_WOOL, Items.LIGHT_BLUE_WOOL, Items.YELLOW_WOOL, Items.LIME_WOOL, Items.PINK_WOOL, Items.GRAY_WOOL, Items.LIGHT_GRAY_WOOL, Items.CYAN_WOOL, Items.PURPLE_WOOL, Items.BLUE_WOOL, Items.BROWN_WOOL, Items.GREEN_WOOL, Items.RED_WOOL, Items.BLACK_WOOL, Items.WHITE_CARPET, Items.ORANGE_CARPET, Items.MAGENTA_CARPET, Items.LIGHT_BLUE_CARPET, Items.YELLOW_CARPET, Items.LIME_CARPET, Items.PINK_CARPET, Items.GRAY_CARPET, Items.LIGHT_GRAY_CARPET, Items.CYAN_CARPET, Items.PURPLE_CARPET, Items.BLUE_CARPET, Items.BROWN_CARPET, Items.GREEN_CARPET, Items.RED_CARPET, Items.BLACK_CARPET, Items.MOSS_BLOCK, Items.MOSS_CARPET, Items.SAND, Items.SOUL_SAND, Items.RED_SAND, Items.DIRT, Items.CLAY, Items.SNOW, Items.SNOW_BLOCK, Items.OAK_LEAVES, Items.SPRUCE_LEAVES, Items.BIRCH_LEAVES, Items.JUNGLE_LEAVES, Items.ACACIA_LEAVES, Items.DARK_OAK_LEAVES, Items.MANGROVE_LEAVES, Items.PINK_TULIP, Items.BAMBOO, Items.SUGAR_CANE, Items.SLIME_BLOCK, Items.HONEY_BLOCK, Items.COBWEB, Items.LIGHTNING_ROD, Items.LEVER, Items.TRIPWIRE_HOOK, Items.STRING, Items.WOODEN_SHOVEL, Items.GOLDEN_SWORD, Items.BRUSH, Items.LEAD, Items.SNOWBALL, Items.STICK, Items.BONE, Items.FEATHER, Items.WHEAT, Items.SLIME_BALL, Items.SCUTE, Items.CLAY_BALL, Items.HONEYCOMB, Items.BLAZE_ROD, Items.PAPER, Items.MAGMA_CREAM, Items.PHANTOM_MEMBRANE, SOFT_SOCKS);
-    public static final List<Item> stickyItems = Arrays.asList();
+    //public static final List<Item> stickyItems = Arrays.asList();
 
     @SuppressWarnings("unused")
     private static final CreativeModeTab ITEM_GROUP = Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, new ResourceLocation(MODID, "ringsandgear"), FabricItemGroup.builder()
@@ -201,47 +201,6 @@ public class StompAndClimb implements ModInitializer {
             }
         }
     }
-    /*
-    public static void handleKeyPressClient(LocalPlayer player) {
-        HitResult hitResult = Minecraft.getInstance().hitResult;
-        int hitResultType;
-        if (hitResult == null)
-            hitResultType = 0;
-        else
-            hitResultType = hitResult.getType() == HitResult.Type.ENTITY ? 1 : 0;
-        Entity target = null;
-        boolean smallEnough = false;
-        if (hitResultType == 1) {
-            target = ((EntityHitResult) hitResult).getEntity();
-            smallEnough = (player.getDimensions(Pose.STANDING).height / target.getDimensions(Pose.STANDING).height) >= 3;
-        }
-        Vec3 hitPos = null;
-        if (hitResult != null)
-            hitPos = hitResult.getLocation();
-
-        if (hitResultType == 1) {
-            if (smallEnough) {
-                if (target.getVehicle() == null) {
-                    target.startRiding(player, true);
-                }
-            }
-        } else if (hitPos != null) {
-            for (Entity passenger : player.getPassengers()) {
-                passenger.stopRiding();
-                passenger.teleportTo(hitPos.x, hitPos.y, hitPos.z);
-                passenger.setPose(Pose.STANDING);
-            }
-        }
-
-        FriendlyByteBuf buf = PacketByteBufs.create();
-        buf.writeInt(hitResultType);
-        buf.writeInt(target != null ? target.getId() : -1);
-        buf.writeBoolean(smallEnough);
-        buf.writeDouble(Objects.requireNonNull(hitPos).x);
-        buf.writeDouble(hitPos.y);
-        buf.writeDouble(hitPos.z);
-        ClientPlayNetworking.send(StompAndClimbNetworkingConstants.PICKUP_TELEPORT_PACKET, buf);
-    }*/
 
     public static Item registerItem(String string, Item item) {
         return registerItem(new ResourceLocation(MODID, string), item);

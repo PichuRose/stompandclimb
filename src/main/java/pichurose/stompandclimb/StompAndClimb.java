@@ -240,7 +240,7 @@ public class StompAndClimb implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(Commands.literal("customcarry")
                     .then(Commands.argument("x", DoubleArgumentType.doubleArg(-1, 1))
-                    .then(Commands.argument("y", DoubleArgumentType.doubleArg(-2, 1))
+                    .then(Commands.argument("y", DoubleArgumentType.doubleArg(-4, 0))
                     .then(Commands.argument("z", DoubleArgumentType.doubleArg(-1, 1))
                     .then(Commands.argument("holdOutHand", BoolArgumentType.bool())
                     .then(Commands.argument("followHead", BoolArgumentType.bool())

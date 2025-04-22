@@ -47,8 +47,8 @@ public class StompAndClimbCustomCarryCommand {
         context.getSource().sendSuccess(() -> Component.literal("Called /command_with_string_arg with place = %s".formatted(place)), false);
         int placeLocation = switch (place.toLowerCase().strip()) {
             case "head", "hat", "hair", "default", "above" -> 0;
-            case "right_hand", "right", "righty" -> 1;
-            case "left_hand", "left", "lefty" -> 2;
+            case "right_hand", "right", "righty", "righthand" -> 1;
+            case "left_hand", "left", "lefty", "lefthand" -> 2;
             case "hand", "hands", "arm", "wrist", "uppies", "pickup", "grab", "yoink", "mine", "palm" -> getDominantHand(Objects.requireNonNull(context.getSource().getPlayer()));
             case "boob", "boobs", "chest", "bust", "booba", "tits", "tit", "breast", "breasts", "booby", "boobies", "badonkadonks" -> 3;
             case "mouth", "teeth", "lips", "tongue", "bite", "chew", "chewtoy", "maw", "snack", "food" -> 4;

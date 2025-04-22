@@ -83,7 +83,7 @@ public class StompAndClimbClient implements ClientModInitializer {
                 final var singleplayerServer = minecraftInstance.getSingleplayerServer();
                 if (singleplayerServer != null) {
                     final var level = singleplayerServer.getLevel(client.player.level().dimension());
-                    if (level != null){
+                    if (level == null){
                         final Entity target = targetId != -1 ? level.getEntity(targetId) : null;
                         client.execute(() -> {
                             if(target != null){
@@ -105,7 +105,7 @@ public class StompAndClimbClient implements ClientModInitializer {
                 final var singleplayerServer = minecraftInstance.getSingleplayerServer();
                 if (singleplayerServer != null) {
                     final var level = singleplayerServer.getLevel(client.player.level().dimension());
-                    if (level != null){
+                    if (level == null){
                         final Entity target = targetId != -1 ? level.getEntity(targetId) : null;
                         client.execute(() -> {
                             if(target != null){

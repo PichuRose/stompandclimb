@@ -374,7 +374,7 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
     }
 
     @SuppressWarnings("UnusedAssignment")
-    @Inject(method = "hurt", at = @At("HEAD"))
+    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
     public void hurt(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (amount == 0) {
             cir.cancel();

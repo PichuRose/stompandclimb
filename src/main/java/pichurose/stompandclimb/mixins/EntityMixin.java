@@ -62,7 +62,7 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
         this.invisiblePassengers = invisiblePassengers;
     }
 
-
+/*
     @Inject(method = "positionRider(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity$MoveFunction;)V", at = @At("HEAD"), cancellable = true)
     protected void injected(Entity passenger, Entity.MoveFunction positionUpdater, CallbackInfo ci) {
         if (!this.hasPassenger(passenger)) {
@@ -98,6 +98,10 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
             double offsetY = this.getY() + this.dimensions.height + passenger.getMyRidingOffset() + ((upDownOffset) * scale);
             double offsetZ = Math.sin(Math.toRadians(angle + 90)) * (forwardBackOffset * scale) + Math.sin(Math.toRadians(angle)) * (leftRightOffset * scale);
 
+            if (!followBodyAngle) {
+                // Adjust offsetX, offsetY, and offsetZ based on the head's pitch and yaw
+
+            }
 
 
 
@@ -108,8 +112,58 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
             ci.cancel();
         }
     }
+*/
 
+    @Inject(method = "positionRider(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity$MoveFunction;)V", at = @At("HEAD"), cancellable = true)
+    protected void injected(Entity passenger, Entity.MoveFunction positionUpdater, CallbackInfo ci) {
+        if (!this.hasPassenger(passenger)) {
+            return;
+        }
 
+        if (((Object) this) instanceof Player player) {
+            float scale = ResizingUtils.getActualSize(player);
+            float angle = followBodyAngle ? player.yBodyRotO : player.yHeadRot;
+
+            if (holdOutHand) {
+                player.swingTime = 0;
+                player.swing(InteractionHand.MAIN_HAND);
+            }
+
+            if (invisiblePassengers && passenger instanceof LivingEntity) {
+                ((LivingEntity) passenger).addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 5, 0, true, false, false));
+            }
+
+            double offsetX, offsetY, offsetZ;
+
+            if (!followBodyAngle) {
+                // Calculate offsets based on head pitch and yaw
+                float pitch = player.getXRot();
+                float yaw = player.yHeadRot;
+
+                // Adjust forward-backward offset based on pitch
+                double pitchFactor = Math.cos(Math.toRadians(pitch));
+
+                offsetX = Math.cos(Math.toRadians(yaw + 90)) * (forwardBackOffset * scale * pitchFactor)
+                        + Math.cos(Math.toRadians(yaw)) * (leftRightOffset * scale);
+                offsetY = this.getY() + this.dimensions.height + passenger.getMyRidingOffset()
+                        - (Math.sin(Math.toRadians(pitch)) * (forwardBackOffset * scale)) // Negated the effect of pitch
+                        + (upDownOffset * scale);
+                offsetZ = Math.sin(Math.toRadians(yaw + 90)) * (forwardBackOffset * scale * pitchFactor)
+                        + Math.sin(Math.toRadians(yaw)) * (leftRightOffset * scale);
+            } else {
+                // Default behavior
+                offsetX = Math.cos(Math.toRadians(angle + 90)) * (forwardBackOffset * scale)
+                        + Math.cos(Math.toRadians(angle)) * (leftRightOffset * scale);
+                offsetY = this.getY() + this.dimensions.height + passenger.getMyRidingOffset()
+                        + (upDownOffset * scale);
+                offsetZ = Math.sin(Math.toRadians(angle + 90)) * (forwardBackOffset * scale)
+                        + Math.sin(Math.toRadians(angle)) * (leftRightOffset * scale);
+            }
+
+            positionUpdater.accept(passenger, this.getX() + offsetX, offsetY, this.getZ() + offsetZ);
+            ci.cancel();
+        }
+    }
 
     @Redirect(
             // the method this function is called in

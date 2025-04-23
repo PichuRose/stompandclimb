@@ -10,15 +10,14 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.glfw.GLFW;
-import pichurose.stompandclimb.StompAndClimb;
-import pichurose.stompandclimb.interfaces.ClientLocationInterface;
+import pichurose.stompandclimb.interfaces.ClientInformationInterface;
 import pichurose.stompandclimb.interfaces.CustomCarryOffsetInterface;
 import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.ResizingUtils;
@@ -28,6 +27,10 @@ import java.util.UUID;
 
 public class StompAndClimbClient implements ClientModInitializer {
     private static KeyMapping pickupPlacedown;
+    private static KeyMapping collectItemsWhileBig;
+
+    private boolean allowToCollectWhileBig = true;
+
     @Override
     public void onInitializeClient() {
         //PehkuiSupport.setup();
@@ -37,10 +40,24 @@ public class StompAndClimbClient implements ClientModInitializer {
                 GLFW.GLFW_KEY_END, // The keycode of the key
                 "key.categories.stompandclimb" // The translation key of the KeyMapping's category.
         ));
+        collectItemsWhileBig = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+                "key.stompandclimb.collectitemswhilebig", // The translation key of the KeyMapping's name
+                InputConstants.Type.KEYSYM, // The type of the KeyMapping, KEYSYM for keyboard, MOUSE for mouse.
+                GLFW.GLFW_KEY_INSERT, // The keycode of the key
+                "key.categories.stompandclimb" // The translation key of the KeyMapping's category.
+        ));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (pickupPlacedown.consumeClick()) {
                 //client.player.sendMessage(Text.literal("Key 1 was pressed!"), false);
-                StompAndClimbClient.handleKeyPressClient(client.player);
+                if (client.player != null) {
+                    StompAndClimbClient.handlePickUpPlaceDownKeyPressClient(client.player);
+                }
+            }
+            while (collectItemsWhileBig.consumeClick()) {
+                //client.player.sendMessage(Text.literal("Key 2 was pressed!"), false);
+                if (client.player != null) {
+                    StompAndClimbClient.handleCollectItemsWhileBigKeyPressClient(client.player);
+                }
             }
         });
 
@@ -124,15 +141,15 @@ public class StompAndClimbClient implements ClientModInitializer {
                 //final Entity target = targetId != -1 ? client.player.getServer().getLevel(client.player.level().dimension()).getEntity(targetId) : null;
                 client.execute(() -> {
                     if(client.player != null){
-                        ClientLocationInterface clientLocationInterface = (ClientLocationInterface)client.player;
-                        clientLocationInterface.stompandclimb_updateIsAllowedToClimb(isAllowedToClimb);
+                        ClientInformationInterface clientInformationInterface = (ClientInformationInterface)client.player;
+                        clientInformationInterface.stompandclimb_updateIsAllowedToClimb(isAllowedToClimb);
                     }
                 });
             }
         });
     }
 
-    public static void handleKeyPressClient(LocalPlayer player) {
+    public static void handlePickUpPlaceDownKeyPressClient(LocalPlayer player) {
         HitResult hitResult = Minecraft.getInstance().hitResult;
         int hitResultType;
         if (hitResult == null)
@@ -172,6 +189,19 @@ public class StompAndClimbClient implements ClientModInitializer {
         buf.writeDouble(hitPos.z);
         ClientPlayNetworking.send(StompAndClimbNetworkingConstants.PICKUP_TELEPORT_PACKET, buf);
     }
+
+    public static void handleCollectItemsWhileBigKeyPressClient(LocalPlayer player) {
+        ClientInformationInterface clientInfoInterface = ((ClientInformationInterface)player);
+        boolean isAllowedToCollect = clientInfoInterface.stompandclimb_getIsAllowedToCollect();
+        clientInfoInterface.stompandclimb_updateIsAllowedToCollect(!isAllowedToCollect);
+        player.displayClientMessage(Component.literal("isAllowedToCollect = "+!isAllowedToCollect), true);
+
+        FriendlyByteBuf buf = PacketByteBufs.create();
+        buf.writeBoolean(!isAllowedToCollect);
+        ClientPlayNetworking.send(StompAndClimbNetworkingConstants.UPDATE_IS_ALLOWED_TO_COLLECT_ITEMS_WHILE_BIG_PACKET, buf);
+    }
+
+
 
 
 }

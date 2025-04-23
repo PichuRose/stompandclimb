@@ -32,8 +32,7 @@ import pichurose.stompandclimb.effects.CurseOfGrowingEffect;
 import pichurose.stompandclimb.effects.CurseOfShrinkingEffect;
 import pichurose.stompandclimb.effects.GrowEffect;
 import pichurose.stompandclimb.effects.ShrinkEffect;
-import pichurose.stompandclimb.interfaces.ClientLocationInterface;
-import pichurose.stompandclimb.interfaces.CustomCarryOffsetInterface;
+import pichurose.stompandclimb.interfaces.ClientInformationInterface;
 import pichurose.stompandclimb.items.Armor.HoverBootsItem;
 import pichurose.stompandclimb.items.Armor.SoftSocksItem;
 import pichurose.stompandclimb.items.Collars.*;
@@ -42,7 +41,6 @@ import pichurose.stompandclimb.materials.HardHatMaterial;
 import pichurose.stompandclimb.materials.HoverBootsMaterial;
 import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.PehkuiSupport;
-import pichurose.stompandclimb.utils.ResizingUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -184,7 +182,7 @@ public class StompAndClimb implements ModInitializer {
         else ServerLifecycleEvents.SERVER_STARTED.register((a) -> common.run());
     }
 
-    public static void handleKeyPressServer(Player player, int hitResultType, @Nullable Entity target, boolean smallEnough, Vec3 hitPos) {
+    public static void handlePickUpPlaceDownKeyPressServer(Player player, int hitResultType, @Nullable Entity target, boolean smallEnough, Vec3 hitPos) {
         if (hitResultType == 1) {
             if (smallEnough) {
                 assert target != null;
@@ -200,6 +198,10 @@ public class StompAndClimb implements ModInitializer {
                 passenger.setPose(Pose.STANDING);
             }
         }
+    }
+
+    public static void handleCollectItemsWhileBigKeyPressServer(Player player, boolean isAllowedToCollectWhileBig){
+        ((ClientInformationInterface)player).stompandclimb_updateIsAllowedToCollect(isAllowedToCollectWhileBig);
     }
 
     public static Item registerItem(String string, Item item) {
@@ -230,7 +232,14 @@ public class StompAndClimb implements ModInitializer {
             double z = buf.readDouble();
             Entity target = targetId != -1 ? Objects.requireNonNull(Objects.requireNonNull(player.getServer()).getLevel(player.level().dimension())).getEntity(targetId) : null;
             Vec3 hitPos = new Vec3(x, y, z);
-            server.execute(() -> handleKeyPressServer(player, hitResultType, target, smallEnough, hitPos));
+            server.execute(() -> handlePickUpPlaceDownKeyPressServer(player, hitResultType, target, smallEnough, hitPos));
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(StompAndClimbNetworkingConstants.UPDATE_IS_ALLOWED_TO_COLLECT_ITEMS_WHILE_BIG_PACKET, (server, player, handler, buf, responseSender) -> {
+            boolean isAllowedToCollect = buf.readBoolean();
+            //Entity target = targetId != -1 ? Objects.requireNonNull(Objects.requireNonNull(player.getServer()).getLevel(player.level().dimension())).getEntity(targetId) : null;
+            //Vec3 hitPos = new Vec3(x, y, z);
+            server.execute(() -> handleCollectItemsWhileBigKeyPressServer(player, isAllowedToCollect));
         });
 
 
@@ -240,13 +249,22 @@ public class StompAndClimb implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(Commands.literal("customcarry")
                     .then(Commands.argument("x", DoubleArgumentType.doubleArg(-1, 1))
-                    .then(Commands.argument("y", DoubleArgumentType.doubleArg(-4, 0))
+                    .then(Commands.argument("y", DoubleArgumentType.doubleArg(-2.37, 0))
                     .then(Commands.argument("z", DoubleArgumentType.doubleArg(-1, 1))
                     .then(Commands.argument("holdOutHand", BoolArgumentType.bool())
                     .then(Commands.argument("followHead", BoolArgumentType.bool())
                     .then(Commands.argument("invisiblePassengers", BoolArgumentType.bool())
-                        .executes(StompAndClimbCustomCarryCommand::executeCommandWithArg))))))));
+                        .executes(StompAndClimbCustomCarryCommand::executeCustomCarryWithXYZAndParameters))))))));
         });
+        //noinspection CodeBlock2Expr
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            dispatcher.register(Commands.literal("customcarry")
+                    .then(Commands.argument("x", DoubleArgumentType.doubleArg(-1, 1))
+                            .then(Commands.argument("y", DoubleArgumentType.doubleArg(-2.37, 0))
+                                    .then(Commands.argument("z", DoubleArgumentType.doubleArg(-1, 1))
+                                            .executes(StompAndClimbCustomCarryCommand::executeCustomCarryWithXYZ)))));
+        });
+
         //noinspection CodeBlock2Expr
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(Commands.literal("customcarry")

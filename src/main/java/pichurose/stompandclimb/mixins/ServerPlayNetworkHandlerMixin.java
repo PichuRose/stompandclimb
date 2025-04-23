@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import pichurose.stompandclimb.StompAndClimb;
-import pichurose.stompandclimb.interfaces.ClientLocationInterface;
+import pichurose.stompandclimb.interfaces.ClientInformationInterface;
 import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.FlanUtils;
 
@@ -52,7 +52,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
     @Inject(method = "handleMovePlayer", at = @At("HEAD"))
     private void injected(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
-        ClientLocationInterface clientLocationInterface = (ClientLocationInterface)player;
+        ClientInformationInterface clientInformationInterface = (ClientInformationInterface)player;
         double d = clampHorizontal(packet.getX(this.player.getX()));
         double e = clampVertical(packet.getY(this.player.getY()));
         double f = clampHorizontal(packet.getZ(this.player.getZ()));
@@ -60,7 +60,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
         double m = e - lastGoodY;
         double n = f - lastGoodZ;
 
-        clientLocationInterface.stompandclimb_updateCache(new Vec3(l, m, n));
+        clientInformationInterface.stompandclimb_updateCache(new Vec3(l, m, n));
 
 
         ResourceLocation perm = FlanUtils.CLIMBING;
@@ -70,7 +70,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
             if(isAllowedToClimb != isAllowedToClimbOld){
                 this.server.sendSystemMessage(Component.literal("isAllowedToClimb: " + isAllowedToClimb));
                 isAllowedToClimbOld = isAllowedToClimb;
-                clientLocationInterface.stompandclimb_updateIsAllowedToClimb(isAllowedToClimb);
+                clientInformationInterface.stompandclimb_updateIsAllowedToClimb(isAllowedToClimb);
 
                 FriendlyByteBuf buf = PacketByteBufs.create();
                 buf.writeBoolean(isAllowedToClimb);

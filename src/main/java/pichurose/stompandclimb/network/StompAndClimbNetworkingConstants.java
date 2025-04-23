@@ -9,4 +9,5 @@ public class StompAndClimbNetworkingConstants {
     public static final ResourceLocation SIZE_CHANGE_CLIENT_PACKET = ResourceLocation.of("stompandclimb", 'd');
     public static final ResourceLocation SIZE_RESIZE_CLIENT_PACKET = ResourceLocation.of("stompandclimb", 'e');
     public static final ResourceLocation UPDATE_IS_ALLOWED_TO_CLIMB_CLIENT_PACKET = ResourceLocation.of("stompandclimb", 'f');
+    public static final ResourceLocation UPDATE_IS_ALLOWED_TO_COLLECT_ITEMS_WHILE_BIG_PACKET = ResourceLocation.of("stompandclimb", 'g');
 }

@@ -24,8 +24,8 @@ public class CurseOfGrowingEffect extends MobEffect {
             return;
         }
         Random r = new Random();
-        if(r.nextFloat() >= 0.9999){
-            float mult = r.nextFloat(1f,10f);
+        if(r.nextFloat() >= 0.99833334){
+            float mult = r.nextFloat(1.0f,1.5f);
             ResizingUtils.resizeOneSecond(entity, mult);
         }
     }

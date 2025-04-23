@@ -137,6 +137,7 @@
 
   "key.categories.stompandclimb": "Stomp and Climb",
   "key.stompandclimb.pickupplacedown": "Pick Up/Place Down",
+  "key.stompandclimb.collectitemswhilebig": "Collect Items While Big Toggle",
 
   "flan.permission.stompandclimb:stompmob" : "Stomp Mob",
   "flan.permission.stompandclimb:stompmob.desc" : "Allow stomping mobs in the claim(global)",

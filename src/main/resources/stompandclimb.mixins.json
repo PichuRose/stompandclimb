@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "EntityMixin",
+    "ItemEntityMixin",
     "LivingEntityMixin",
     "PlayerEntityMixin",
     "RideCommandMixin",
@@ -12,6 +13,7 @@
     "VoxelShapesMixin"
   ],
   "client": [
+    "LocalPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

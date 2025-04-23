@@ -9,7 +9,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.entity.monster.Endermite;
-import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.item.ArmorItem;
@@ -25,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import pichurose.stompandclimb.StompAndClimb;
-import pichurose.stompandclimb.interfaces.ClientLocationInterface;
+import pichurose.stompandclimb.interfaces.ClientInformationInterface;
 import pichurose.stompandclimb.items.Armor.SoftSocksItem;
 import pichurose.stompandclimb.utils.FlanUtils;
 import pichurose.stompandclimb.utils.ResizingUtils;
@@ -34,11 +33,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin implements ClientLocationInterface {
+public abstract class LivingEntityMixin implements ClientInformationInterface {
 
     @Shadow public abstract EntityDimensions getDimensions(Pose pose);
 
@@ -46,9 +44,9 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
     @Shadow private Optional<BlockPos> lastClimbablePos;
 
 
-    @Unique
-    public Vec3 playerVec = Vec3.ZERO;
-
+    @Unique public Vec3 playerVec = Vec3.ZERO;
+    @Unique public boolean isAllowedToClimb = true;
+    @Unique boolean isAllowedToCollectItemsWhileBig = true;
 
     @Override
     public void stompandclimb_updateCache(Vec3 vec) {
@@ -60,8 +58,16 @@ public abstract class LivingEntityMixin implements ClientLocationInterface {
         this.isAllowedToClimb = isAllowedToClimb;
     }
 
-    @Unique
-    public boolean isAllowedToClimb = true;
+    @Override
+    public void stompandclimb_updateIsAllowedToCollect(boolean isAllowedToCollectItemsWhileBig) {
+        this.isAllowedToCollectItemsWhileBig = isAllowedToCollectItemsWhileBig;
+    }
+
+    @Override
+    public boolean stompandclimb_getIsAllowedToCollect() {
+        return isAllowedToCollectItemsWhileBig;
+    }
+
 
 
 

@@ -30,13 +30,25 @@ public class StompAndClimbCustomCarryCommand {
         return player.getMainArm().equals(HumanoidArm.RIGHT) ? 1 : 2;
     }
 
-    public static int executeCommandWithArg(CommandContext<CommandSourceStack> context) {
+    public static int executeCustomCarryWithXYZAndParameters(CommandContext<CommandSourceStack> context) {
         double x = DoubleArgumentType.getDouble(context, "x");
         double y = DoubleArgumentType.getDouble(context, "y");
         double z = DoubleArgumentType.getDouble(context, "z");
         boolean holdOutHand = BoolArgumentType.getBool(context, "holdOutHand");
         boolean followBodyAngle = !BoolArgumentType.getBool(context, "followHead");
         boolean invisiblePassengers = BoolArgumentType.getBool(context, "invisiblePassengers");
+        executeCarrying(x, y, z, context.getSource().getPlayer(), holdOutHand, followBodyAngle, invisiblePassengers);
+        context.getSource().sendSuccess(() -> Component.literal("Called /custom_carry with x = %s, y = %s, z = %s".formatted(x, y, z)), false);
+        return 1;
+    }
+
+    public static int executeCustomCarryWithXYZ(CommandContext<CommandSourceStack> context) {
+        double x = DoubleArgumentType.getDouble(context, "x");
+        double y = DoubleArgumentType.getDouble(context, "y");
+        double z = DoubleArgumentType.getDouble(context, "z");
+        boolean holdOutHand = false;
+        boolean followBodyAngle = false;
+        boolean invisiblePassengers = false;
         executeCarrying(x, y, z, context.getSource().getPlayer(), holdOutHand, followBodyAngle, invisiblePassengers);
         context.getSource().sendSuccess(() -> Component.literal("Called /custom_carry with x = %s, y = %s, z = %s".formatted(x, y, z)), false);
         return 1;

@@ -134,7 +134,7 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
             }
 
             double offsetX, offsetY, offsetZ;
-
+            //
             if (!followBodyAngle) {
                 // Calculate offsets based on head pitch and yaw
                 float pitch = player.getXRot();

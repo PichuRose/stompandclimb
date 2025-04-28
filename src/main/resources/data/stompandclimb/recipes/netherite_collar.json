@@ -1,13 +1,16 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "GGG",
-    "G G",
-    "GAG"
+    "BBB",
+    "BGB",
+    "BAB"
   ],
   "key": {
     "A": {
       "item": "minecraft:phantom_membrane"
+    },
+    "B": {
+      "item": "minecraft:diamond"
     },
     "G": {
       "item": "minecraft:netherite_ingot"

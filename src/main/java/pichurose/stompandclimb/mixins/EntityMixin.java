@@ -121,6 +121,9 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
         }
 
         if (((Object) this) instanceof Player player) {
+            float x = (float) forwardBackOffset;
+            float y = (float) upDownOffset;
+            float z = (float) leftRightOffset;
             float scale = ResizingUtils.getActualSize(player);
             float angle = followBodyAngle ? player.yBodyRotO : player.yHeadRot;
 
@@ -135,6 +138,15 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
 
             double offsetX, offsetY, offsetZ;
 
+            if(upDownOffset <= -1.9 && (player.isCrouching() || player.isVisuallyCrawling())){
+                if(player.isCrouching()){
+                    y += 0.4f;
+                }
+                else if(player.isVisuallyCrawling()){
+                    y += 1f;
+                }
+
+            }
             
             if (!followBodyAngle) {
                 // Calculate offsets based on head pitch and yaw
@@ -144,22 +156,24 @@ public abstract class EntityMixin implements CustomCarryOffsetInterface {
                 // Adjust forward-backward offset based on pitch
                 double pitchFactor = Math.cos(Math.toRadians(pitch));
 
-                offsetX = Math.cos(Math.toRadians(yaw + 90)) * (forwardBackOffset * scale * pitchFactor)
-                        + Math.cos(Math.toRadians(yaw)) * (leftRightOffset * scale);
+                offsetX = Math.cos(Math.toRadians(yaw + 90)) * (x * scale * pitchFactor)
+                        + Math.cos(Math.toRadians(yaw)) * (z * scale);
                 offsetY = this.getY() + this.dimensions.height + passenger.getMyRidingOffset()
-                        - (Math.sin(Math.toRadians(pitch)) * (forwardBackOffset * scale)) // Negated the effect of pitch
-                        + (upDownOffset * scale);
-                offsetZ = Math.sin(Math.toRadians(yaw + 90)) * (forwardBackOffset * scale * pitchFactor)
-                        + Math.sin(Math.toRadians(yaw)) * (leftRightOffset * scale);
+                        - (Math.sin(Math.toRadians(pitch)) * (x * scale)) // Negated the effect of pitch
+                        + (y * scale);
+                offsetZ = Math.sin(Math.toRadians(yaw + 90)) * (x * scale * pitchFactor)
+                        + Math.sin(Math.toRadians(yaw)) * (z * scale);
             } else {
                 // Default behavior
-                offsetX = Math.cos(Math.toRadians(angle + 90)) * (forwardBackOffset * scale)
-                        + Math.cos(Math.toRadians(angle)) * (leftRightOffset * scale);
+                offsetX = Math.cos(Math.toRadians(angle + 90)) * (x * scale)
+                        + Math.cos(Math.toRadians(angle)) * (z * scale);
                 offsetY = this.getY() + this.dimensions.height + passenger.getMyRidingOffset()
-                        + (upDownOffset * scale);
-                offsetZ = Math.sin(Math.toRadians(angle + 90)) * (forwardBackOffset * scale)
-                        + Math.sin(Math.toRadians(angle)) * (leftRightOffset * scale);
+                        + (y * scale);
+                offsetZ = Math.sin(Math.toRadians(angle + 90)) * (x * scale)
+                        + Math.sin(Math.toRadians(angle)) * (z * scale);
             }
+
+
 
             positionUpdater.accept(passenger, this.getX() + offsetX, offsetY, this.getZ() + offsetZ);
             ci.cancel();

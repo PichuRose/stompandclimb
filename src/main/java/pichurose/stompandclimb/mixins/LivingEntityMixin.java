@@ -2,6 +2,7 @@ package pichurose.stompandclimb.mixins;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -30,6 +31,7 @@ import pichurose.stompandclimb.utils.FlanUtils;
 import pichurose.stompandclimb.utils.ResizingUtils;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,9 +69,39 @@ public abstract class LivingEntityMixin implements ClientInformationInterface {
     public boolean stompandclimb_getIsAllowedToCollect() {
         return isAllowedToCollectItemsWhileBig;
     }
+            @Unique
+            private final HashMap<ServerPlayer, Long> lastFoodPointRemovalTick = new HashMap<>();
 
+            @Unique
+            public void removeFoodPoints(ServerPlayer player, int pointsToRemove) {
+                long currentTick = player.level().getGameTime(); // Get the current game tick
+                int ticksPerActivation = 60;
 
+                // Check if the method was called within the last 20 ticks for this player
+                if (lastFoodPointRemovalTick.containsKey(player) && currentTick - lastFoodPointRemovalTick.get(player) < ticksPerActivation) {
+                    return;
+                }
 
+                // Update the last execution time for this player
+                lastFoodPointRemovalTick.put(player, currentTick);
+
+                // Get the player's current food and saturation levels
+                int currentFoodLevel = player.getFoodData().getFoodLevel();
+                float currentSaturation = player.getFoodData().getSaturationLevel();
+
+                // Reduce saturation first
+                if (currentSaturation > 0) {
+                    float saturationToRemove = Math.min(currentSaturation, pointsToRemove);
+                    player.getFoodData().setSaturation(currentSaturation - saturationToRemove);
+                    pointsToRemove -= (int) saturationToRemove;
+                }
+
+                // Reduce food level if points remain
+                if (pointsToRemove > 0) {
+                    int newFoodLevel = Math.max(0, currentFoodLevel - pointsToRemove);
+                    player.getFoodData().setFoodLevel(newFoodLevel);
+                }
+            }
 
 
     @Inject(method = "doPush", at = @At("HEAD"), cancellable = true)
@@ -432,6 +464,7 @@ public abstract class LivingEntityMixin implements ClientInformationInterface {
         }
 
         if (amount == 0) {
+            removeFoodPoints((ServerPlayer) entity, 1);
             cir.cancel();
             //noinspection UnnecessaryReturnStatement
             return;

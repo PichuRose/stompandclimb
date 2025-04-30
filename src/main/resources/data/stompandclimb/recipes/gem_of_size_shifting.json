@@ -1,0 +1,38 @@
+{
+      "type": "minecraft:crafting_shaped",
+      "pattern": [
+        "ABC",
+        "DEF",
+        "GBH"
+      ],
+      "key": {
+        "A": {
+          "item": "stompandclimb:empowered_copper_collar_red"
+        },
+        "B": {
+          "item": "stompandclimb:echo_cube"
+        },
+        "C": {
+          "item": "stompandclimb:empowered_copper_ring_red"
+        },
+        "D": {
+          "item": "stompandclimb:omnicollar"
+        },
+        "E": {
+          "item": "minecraft:nether_star"
+        },
+        "F": {
+          "item": "stompandclimb:omniring"
+        },
+        "G": {
+          "item": "stompandclimb:empowered_copper_collar"
+        },
+        "H": {
+          "item": "stompandclimb:empowered_copper_ring"
+        }
+      },
+      "result": {
+        "item": "stompandclimb:gem_of_size_shifting",
+        "count": 1
+      }
+    }

@@ -13,7 +13,8 @@
     "VoxelShapesMixin"
   ],
   "client": [
-    "LocalPlayerMixin"
+    "LocalPlayerMixin",
+    "RemotePlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

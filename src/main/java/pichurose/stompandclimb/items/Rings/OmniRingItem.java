@@ -11,6 +11,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import pichurose.stompandclimb.StompAndClimb;
 import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.FlanUtils;
 import pichurose.stompandclimb.utils.ResizingUtils;
@@ -30,6 +31,11 @@ public class OmniRingItem extends Item{
     }
     public float getSIZE(UUID uuid){
         return sizeMap.getOrDefault(uuid,1f);
+    }
+
+    @Override
+    public ItemStack getRecipeRemainder(ItemStack stack) {
+        return new ItemStack(StompAndClimb.OMNIRING);
     }
 
 

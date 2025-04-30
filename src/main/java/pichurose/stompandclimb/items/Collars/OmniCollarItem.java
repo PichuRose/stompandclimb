@@ -11,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import pichurose.stompandclimb.StompAndClimb;
 import pichurose.stompandclimb.network.StompAndClimbNetworkingConstants;
 import pichurose.stompandclimb.utils.FlanUtils;
 import pichurose.stompandclimb.utils.ResizingUtils;
@@ -28,6 +29,12 @@ public class OmniCollarItem extends Item {
     public void setSIZE(UUID uuid, float SIZE) {
         sizeMap.put(uuid, SIZE);
     }
+
+    @Override
+    public ItemStack getRecipeRemainder(ItemStack stack) {
+        return new ItemStack(StompAndClimb.OMNICOLLAR);
+    }
+
     public float getSIZE(UUID uuid){
         return sizeMap.getOrDefault(uuid,1f);
     }

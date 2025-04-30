@@ -60,51 +60,53 @@ public class StompAndClimb implements ModInitializer {
 
 
 
+    public static final Item ECHO_CUBE = registerItem("echo_cube", new Item(new Item.Properties()));
+    public static final Item SIZE_VOUCHER = registerItem("size_voucher", new Item(new Item.Properties().stacksTo(1)));
+    public static final Item GEM_OF_SIZE_SHIFTING = registerItem("gem_of_size_shifting", new Item(new Item.Properties().stacksTo(1)));
+
+    public static final Item HARD_HAT = registerItem("hard_hat", new ArmorItem(new HardHatMaterial(), ArmorItem.Type.HELMET, new Item.Properties().stacksTo(1)));
+    public static final Item SOFT_SOCKS = registerItem("soft_socks", new SoftSocksItem(new Item.Properties().stacksTo(1)));
+    public static final Item HOVER_BOOTS = registerItem("hover_boots", new HoverBootsItem(new HoverBootsMaterial(), ArmorItem.Type.BOOTS, new Item.Properties().stacksTo(1)));
+
+    public static final Item NETHERITE_RING = registerItem("netherite_ring", new RingItem(new Item.Properties().stacksTo(1), 16));
+    public static final Item AMETHYST_RING = registerItem("amethyst_ring", new RingItem(new Item.Properties().stacksTo(1), 8));
+    public static final Item DIAMOND_RING = registerItem("diamond_ring", new RingItem(new Item.Properties().stacksTo(1), 4));
+    public static final Item EMERALD_RING = registerItem("emerald_ring", new RingItem(new Item.Properties().stacksTo(1), 2));
+    public static final Item QUARTZ_RING = registerItem("quartz_ring", new RingItem(new Item.Properties().stacksTo(1), 1));
+    public static final Item NETHERBRICK_RING = registerItem("netherbrick_ring", new RingItem(new Item.Properties().stacksTo(1), .5f));
+    public static final Item SEA_RING = registerItem("sea_ring", new RingItem(new Item.Properties().stacksTo(1), .25f));
+    public static final Item REDSTONE_RING = registerItem("redstone_ring", new RingItem(new Item.Properties().stacksTo(1), .125f));
+    public static final Item SPAWNER_RING = registerItem("spawner_ring", new RingItem(new Item.Properties().stacksTo(1), .0625f));
+
+    public static final Item NETHERITE_COLLAR = registerItem("netherite_collar", new CollarItem(new Item.Properties().stacksTo(1), 16));
+    public static final Item AMETHYST_COLLAR = registerItem("amethyst_collar", new CollarItem(new Item.Properties().stacksTo(1), 8));
+    public static final Item DIAMOND_COLLAR = registerItem("diamond_collar", new CollarItem(new Item.Properties().stacksTo(1), 4));
+    public static final Item EMERALD_COLLAR = registerItem("emerald_collar", new CollarItem(new Item.Properties().stacksTo(1), 2));
+    public static final Item QUARTZ_COLLAR = registerItem("quartz_collar", new CollarItem(new Item.Properties().stacksTo(1), 1));
+    public static final Item NETHERBRICK_COLLAR = registerItem("netherbrick_collar", new CollarItem(new Item.Properties().stacksTo(1), .5f));
+    public static final Item SEA_COLLAR = registerItem("sea_collar", new CollarItem(new Item.Properties().stacksTo(1), .25f));
+    public static final Item REDSTONE_COLLAR = registerItem("redstone_collar", new CollarItem(new Item.Properties().stacksTo(1), .125f));
+    public static final Item SPAWNER_COLLAR = registerItem("spawner_collar", new CollarItem(new Item.Properties().stacksTo(1), .0625f));
 
 
-    public static final Item HARD_HAT = registerItem("hard_hat", new ArmorItem(new HardHatMaterial(), ArmorItem.Type.HELMET, new Item.Properties()));
-    public static final Item SOFT_SOCKS = registerItem("soft_socks", new SoftSocksItem(new Item.Properties()));
-    public static final Item HOVER_BOOTS = registerItem("hover_boots", new HoverBootsItem(new HoverBootsMaterial(), ArmorItem.Type.BOOTS, new Item.Properties()));
+    public static final Item SHRINKING_RING = registerItem("copper_ring", new ShrinkingRingItem(new Item.Properties().stacksTo(1)));
+    public static final Item RUSTED_SHRINKING_RING = registerItem("rusted_ring", new RustedShrinkingRingItem(new Item.Properties().stacksTo(1)));
+    public static final Item SHRINKING_COLLAR = registerItem("copper_collar", new ShrinkingCollarItem(new Item.Properties().stacksTo(1)));
+    public static final Item RUSTED_SHRINKING_COLLAR = registerItem("rusted_collar", new RustedShrinkingCollarItem(new Item.Properties().stacksTo(1)));
 
-    public static final Item NETHERITE_RING = registerItem("netherite_ring", new RingItem(new Item.Properties(), 16));
-    public static final Item AMETHYST_RING = registerItem("amethyst_ring", new RingItem(new Item.Properties(), 8));
-    public static final Item DIAMOND_RING = registerItem("diamond_ring", new RingItem(new Item.Properties(), 4));
-    public static final Item EMERALD_RING = registerItem("emerald_ring", new RingItem(new Item.Properties(), 2));
-    public static final Item QUARTZ_RING = registerItem("quartz_ring", new RingItem(new Item.Properties(), 1));
-    public static final Item NETHERBRICK_RING = registerItem("netherbrick_ring", new RingItem(new Item.Properties(), .5f));
-    public static final Item SEA_RING = registerItem("sea_ring", new RingItem(new Item.Properties(), .25f));
-    public static final Item REDSTONE_RING = registerItem("redstone_ring", new RingItem(new Item.Properties(), .125f));
-    public static final Item SPAWNER_RING = registerItem("spawner_ring", new RingItem(new Item.Properties(), .0625f));
+    public static final Item GROWING_RING = registerItem("copper_ring_red", new GrowingRingItem(new Item.Properties().stacksTo(1)));
+    public static final Item RUSTED_GROWING_RING = registerItem("rusted_ring_red", new RustedGrowingRingItem(new Item.Properties().stacksTo(1)));
+    public static final Item GROWING_COLLAR = registerItem("copper_collar_red", new GrowingCollarItem(new Item.Properties().stacksTo(1)));
+    public static final Item RUSTED_GROWING_COLLAR = registerItem("rusted_collar_red", new RustedGrowingCollarItem(new Item.Properties().stacksTo(1)));
 
-    public static final Item NETHERITE_COLLAR = registerItem("netherite_collar", new CollarItem(new Item.Properties(), 16));
-    public static final Item AMETHYST_COLLAR = registerItem("amethyst_collar", new CollarItem(new Item.Properties(), 8));
-    public static final Item DIAMOND_COLLAR = registerItem("diamond_collar", new CollarItem(new Item.Properties(), 4));
-    public static final Item EMERALD_COLLAR = registerItem("emerald_collar", new CollarItem(new Item.Properties(), 2));
-    public static final Item QUARTZ_COLLAR = registerItem("quartz_collar", new CollarItem(new Item.Properties(), 1));
-    public static final Item NETHERBRICK_COLLAR = registerItem("netherbrick_collar", new CollarItem(new Item.Properties(), .5f));
-    public static final Item SEA_COLLAR = registerItem("sea_collar", new CollarItem(new Item.Properties(), .25f));
-    public static final Item REDSTONE_COLLAR = registerItem("redstone_collar", new CollarItem(new Item.Properties(), .125f));
-    public static final Item SPAWNER_COLLAR = registerItem("spawner_collar", new CollarItem(new Item.Properties(), .0625f));
+    public static final Item EMPOWERED_SHRINKING_RING = registerItem("empowered_copper_ring", new EmpoweredShrinkingRingItem(new Item.Properties().stacksTo(1)));
+    public static final Item EMPOWERED_SHRINKING_COLLAR = registerItem("empowered_copper_collar", new EmpoweredShrinkingCollarItem(new Item.Properties().stacksTo(1)));
+    public static final Item EMPOWERED_GROWING_RING = registerItem("empowered_copper_ring_red", new EmpoweredGrowingRingItem(new Item.Properties().stacksTo(1)));
+    public static final Item EMPOWERED_GROWING_COLLAR = registerItem("empowered_copper_collar_red", new EmpoweredGrowingCollarItem(new Item.Properties().stacksTo(1)));
 
 
-    public static final Item SHRINKING_RING = registerItem("copper_ring", new ShrinkingRingItem(new Item.Properties()));
-    public static final Item RUSTED_SHRINKING_RING = registerItem("rusted_ring", new RustedShrinkingRingItem(new Item.Properties()));
-    public static final Item SHRINKING_COLLAR = registerItem("copper_collar", new ShrinkingCollarItem(new Item.Properties()));
-    public static final Item RUSTED_SHRINKING_COLLAR = registerItem("rusted_collar", new RustedShrinkingCollarItem(new Item.Properties()));
-
-    public static final Item GROWING_RING = registerItem("copper_ring_red", new GrowingRingItem(new Item.Properties()));
-    public static final Item RUSTED_GROWING_RING = registerItem("rusted_ring_red", new RustedGrowingRingItem(new Item.Properties()));
-    public static final Item GROWING_COLLAR = registerItem("copper_collar_red", new GrowingCollarItem(new Item.Properties()));
-    public static final Item RUSTED_GROWING_COLLAR = registerItem("rusted_collar_red", new RustedGrowingCollarItem(new Item.Properties()));
-
-    public static final Item EMPOWERED_SHRINKING_RING = registerItem("empowered_copper_ring", new EmpoweredShrinkingRingItem(new Item.Properties()));
-    public static final Item EMPOWERED_SHRINKING_COLLAR = registerItem("empowered_copper_collar", new EmpoweredShrinkingCollarItem(new Item.Properties()));
-    public static final Item EMPOWERED_GROWING_RING = registerItem("empowered_copper_ring_red", new EmpoweredGrowingRingItem(new Item.Properties()));
-    public static final Item EMPOWERED_GROWING_COLLAR = registerItem("empowered_copper_collar_red", new EmpoweredGrowingCollarItem(new Item.Properties()));
-
-
-    public static final Item OMNIRING = registerItem("omniring", new OmniRingItem(new Item.Properties()));
-    public static final Item OMNICOLLAR = registerItem("omnicollar", new OmniCollarItem(new Item.Properties()));
+    public static final Item OMNIRING = registerItem("omniring", new OmniRingItem(new Item.Properties().stacksTo(1)));
+    public static final Item OMNICOLLAR = registerItem("omnicollar", new OmniCollarItem(new Item.Properties().stacksTo(1)));
 
 
     public static final MobEffect CURSE_OF_GROWING = Registry.register(BuiltInRegistries.MOB_EFFECT, new ResourceLocation(MODID, "curse_of_growing"), new CurseOfGrowingEffect());
@@ -121,9 +123,13 @@ public class StompAndClimb implements ModInitializer {
             .icon(() -> new ItemStack(SPAWNER_RING))
             .title(Component.translatable("itemGroup.stompandclimb.ringsandgear"))
             .displayItems((context, entries) -> {
+                entries.accept(SIZE_VOUCHER);
                 entries.accept(HARD_HAT);
                 entries.accept(SOFT_SOCKS);
                 entries.accept(HOVER_BOOTS);
+
+                entries.accept(ECHO_CUBE);
+                entries.accept(GEM_OF_SIZE_SHIFTING);
 
                 entries.accept(OMNIRING);
                 entries.accept(NETHERITE_RING);
@@ -161,6 +167,7 @@ public class StompAndClimb implements ModInitializer {
                 entries.accept(RUSTED_SHRINKING_COLLAR);
                 entries.accept(EMPOWERED_SHRINKING_RING);
                 entries.accept(EMPOWERED_SHRINKING_COLLAR);
+
 
 
 

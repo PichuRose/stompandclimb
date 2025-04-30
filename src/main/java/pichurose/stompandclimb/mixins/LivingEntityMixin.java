@@ -528,8 +528,7 @@ public abstract class LivingEntityMixin implements ClientInformationInterface {
         if(sizeDifference > 1){
 
             List<String> divideNoLimit = Arrays.asList("lightningBolt", "sonic_boom", "thrown", "witherSkull");
-            List<String> divideImmunityIfBigEnough = Arrays.asList("cactus", "mob", "sting", "sweetBerryBush", "thorns", "player", "arrow", "inFire", "explosion.player", "spit", "stalagmite", "explosion", "anvil", "fallingBlock", "trident", "fallingStalactite", "fireball", "fireworks", "hotFloor", "inWall", "lava");
-            List<String> divideSquareRoot = List.of("onFire");
+            List<String> divideImmunityIfBigEnough = Arrays.asList("cactus", "mob", "sting", "sweetBerryBush", "thorns", "player", "arrow", "inFire", "onFire", "explosion.player", "spit", "stalagmite", "explosion", "anvil", "fallingBlock", "trident", "fallingStalactite", "fireball", "fireworks", "hotFloor", "inWall", "lava");
             if (divideImmunityIfBigEnough.contains(typeID)) {
                 amount /= sizeDifference;
                 if(amount < 0.5){
@@ -538,12 +537,6 @@ public abstract class LivingEntityMixin implements ClientInformationInterface {
             }
             else if(divideNoLimit.contains(typeID)){
                 amount /= sizeDifference;
-                if(amount < 0.01){
-                    amount = 0;
-                }
-            }
-            else if(divideSquareRoot.contains(typeID)){
-                amount = (float) sqrt(amount / sizeDifference);
                 if(amount < 0.01){
                     amount = 0;
                 }

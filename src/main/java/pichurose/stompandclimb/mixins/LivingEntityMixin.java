@@ -418,6 +418,9 @@ public abstract class LivingEntityMixin implements ClientInformationInterface {
             cir.cancel();
             return;
         }
+        if(!((Object)this instanceof LivingEntity)){
+            return;
+        }
         LivingEntity entity = (LivingEntity) (Object) this;
 
         float entitySize = ResizingUtils.getActualSize(entity);
@@ -464,7 +467,9 @@ public abstract class LivingEntityMixin implements ClientInformationInterface {
         }
 
         if (amount == 0) {
-            removeFoodPoints((ServerPlayer) entity, 1);
+            if(entity instanceof ServerPlayer && entitySize > 1){
+                removeFoodPoints((ServerPlayer) entity, 1);
+            }
             cir.cancel();
             //noinspection UnnecessaryReturnStatement
             return;
@@ -475,6 +480,9 @@ public abstract class LivingEntityMixin implements ClientInformationInterface {
     @ModifyVariable(method = "hurt", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private float modifyAmount(float amount, DamageSource source) {
         if (amount == 0) {
+            return amount;
+        }
+        if(!((Object)this instanceof LivingEntity)){
             return amount;
         }
         LivingEntity entity = (LivingEntity) (Object) this;
